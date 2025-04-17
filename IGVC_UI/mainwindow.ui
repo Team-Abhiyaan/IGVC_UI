@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1145</width>
+    <height>649</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="horizontalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>1121</width>
+      <height>591</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="columns">
+     <item>
+      <layout class="QVBoxLayout" name="buttons">
+       <item>
+        <widget class="QCheckBox" name="electrical">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>electrical</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="zed">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>zed</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="gps">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>gps</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="waypoint_following">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>waypoint_following</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="navigation">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>navigation</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="lane_detection">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>lane_detection</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="lane_following">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>lane_following</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="idk_one_extra">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>idk_one_extra</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="commands"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1145</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
