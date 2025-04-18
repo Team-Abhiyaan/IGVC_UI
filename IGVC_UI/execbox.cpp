@@ -3,34 +3,36 @@
 
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent) {
 
-    QProcess elecrical_process;
     connect(ui->electrical, &QCheckBox::toggled, this, [=](bool checked) {
         if (checked) {
+            electrical_process = new QProcess(this);
             StartSession(electrical_process, "cmd");
         }
         else {
             StopSession(electrical_process);
+            electrical_process = nullptr;
         }
         });
 }
 //this executes the command without a terminal window, can be checked with listener node as talker node is being used here.
-void ExecBox::StartSession(QProcess& process, const QString cmd){
+void ExecBox::StartSession(QProcess* process, const QString& cmd){
     qDebug()<< "checked";
-    process.setWorkingDirectory("/home/");
-    process.start("bash", QStringList() << "-c"
+    process->setWorkingDirectory("/home/");
+    process->start("bash", QStringList() << "-c"
                     << "source /opt/ros/jazzy/setup.bash && ros2 run demo_nodes_cpp talker");
 
-    if (!process.waitForStarted()) {
+    if (!process->waitForStarted()) {
         qDebug() << "Failed to start talker node!";
     }
 }
-void ExecBox::StopSession(QProcess& process){
+void ExecBox::StopSession(QProcess* process){
     qDebug()<< "unchecked";
-    process.terminate();
-    if (!process.waitForFinished(3000)) {
-        process.kill();
-        process.waitForFinished(3000);
+    process->terminate();
+    if (!process->waitForFinished(3000)) {
+        process->kill();
+        process->waitForFinished(3000);
     }
+    delete electrical_process;
     qDebug()<<"Process terminated";
 }
 

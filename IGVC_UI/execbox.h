@@ -10,11 +10,10 @@ class ExecBox : public QWidget
     Q_OBJECT
 
 private:
-    QProcess* process = nullptr;
 
 public:
     explicit ExecBox(QWidget *parent = nullptr, Ui::MainWindow* ui  = nullptr);
-    QProcess electrical_process
+    QProcess *electrical_process = nullptr
             // , *zed_process = nullptr
             // , *gps_process = nullptr
             // , *waypoint_following_process = nullptr
@@ -23,8 +22,8 @@ public:
             // , *lane_following_process = nullptr
             // , *idk_one_extra_process = nullptr
         ;
-    void StartSession(QProcess& process, const QString cmd);
-    void StopSession(QProcess& process);
+    void StartSession(QProcess* process, const QString& cmd);
+    void StopSession(QProcess* process);
 };
 
 #endif // EXECBOX_H
