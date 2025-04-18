@@ -3,40 +3,15 @@
 
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
 
+    ReadFile();
+    SetupUI(m_ui);
 
-    CheckBoxCommandMap[m_ui->elecstack] = "ros2 launch elecstack elec_launch.py";
-    CheckBoxCommandMap[m_ui->robot_desc] = "ros2 launch robot_desc robot_launch.py";
-    CheckBoxCommandMap[m_ui->zed] = "sudo -E env bash -c 'source /opt/ros/humble/setup.bash; ros2 launch zed_wrapper zed_camera.launch.py camera_model:=zed2i publish_tf:=false publish_map_tf:=false'";
-    CheckBoxCommandMap[m_ui->lidar] = "ros2 launch sllidar_ros2 sllidar_a2m12_launch.py";
-    CheckBoxCommandMap[m_ui->lidar_range_filter] = "ros2 launch laser_filters range_filter_example.launch.py";
-    CheckBoxCommandMap[m_ui->lidar_angular_filter] = "ros2 launch laser_filters angular_filter_example.launch.py";
-    CheckBoxCommandMap[m_ui->lane_detection] = "ros2 launch lane_detection start.py";
-    CheckBoxCommandMap[m_ui->pothole_detection] = "ros2 run lane_pothole_detection potholes";
-    CheckBoxCommandMap[m_ui->nav] = "ros2 launch sensor_fusion fusion.launch.py";
-    CheckBoxCommandMap[m_ui->pathfinder] = "ros2 run path_finder find_path";
-    CheckBoxCommandMap[m_ui->gps] = "ros2 run demo_nodes_cpp talker";
-    CheckBoxCommandMap[m_ui->go] = "ros2 run nav_commander go";
-
-    CheckBoxProcessMap[m_ui->elecstack] = nullptr;
-    CheckBoxProcessMap[m_ui->robot_desc] = nullptr;
-    CheckBoxProcessMap[m_ui->zed] = nullptr;
-    CheckBoxProcessMap[m_ui->lidar] = nullptr;
-    CheckBoxProcessMap[m_ui->lidar_range_filter] = nullptr;
-    CheckBoxProcessMap[m_ui->lidar_angular_filter] = nullptr;
-    CheckBoxProcessMap[m_ui->lane_detection] = nullptr;
-    CheckBoxProcessMap[m_ui->pothole_detection] = nullptr;
-    CheckBoxProcessMap[m_ui->nav] = nullptr;
-    CheckBoxProcessMap[m_ui->pathfinder] = nullptr;
-    CheckBoxProcessMap[m_ui->gps] = nullptr;
-    CheckBoxProcessMap[m_ui->go] = nullptr;
-
-
-    for (auto i = CheckBoxProcessMap.begin(), end = CheckBoxProcessMap.end(); i != end; ++i){
-        QCheckBox* checkbox = i.key();
+    for(int i = 0;i<checkBoxes.size(); ++i){
+        QCheckBox* checkbox = checkBoxes[i];
         connect(checkbox, &QCheckBox::toggled, this, [=](bool checked) {
             if (checked) {
                 CheckBoxProcessMap[checkbox] = new QProcess(this);
-                StartSession(CheckBoxProcessMap[checkbox], CheckBoxCommandMap[checkbox]);
+                StartSession(CheckBoxProcessMap[checkbox], commands[i]);
             }
             else {
                 StopSession(CheckBoxProcessMap[checkbox]);
@@ -45,10 +20,10 @@ ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui)
         });
     }
 }
-//this executes the command without a terminal window, can be checked with listener node as talker node is being used here.
+//this executes the command without a terminal window.
 void ExecBox::StartSession(QProcess* process, const QString& cmd){
     qDebug()<< "checked";
-
+    qDebug()<<cmd;
 
     QString fullCommand;
 
@@ -87,4 +62,51 @@ void ExecBox::StopSession(QProcess* process){
     qDebug()<<"Process terminated";
 }
 
-// there is one column on the right side of UI called "commands", where the corresponding commands has to be displayed, Logic is not implementd as of now.
+void ExecBox::ReadFile(){
+
+    QFile File("config.json");
+    QByteArray Bytes;
+    if(File.open(QIODevice::ReadOnly | QIODevice::Text)){
+        Bytes = File.readAll();
+        File.close();
+
+        QJsonParseError JsonError;
+        QJsonDocument Document =  QJsonDocument::fromJson(Bytes, &JsonError);
+        if(JsonError.error != QJsonParseError::NoError){
+            qDebug()<<"Error in Json Data: "<<JsonError.errorString();
+            return;
+        }
+        else{
+            qDebug()<<"No error found in Json Data";
+        }
+        if (!Document.isArray()) {
+            qDebug() << "Expected a JSON array";
+            return;
+        }
+        QJsonArray array = Document.array();
+
+        QCheckBox* checkbox = nullptr;
+        for(int i = 0; i < array.size(); i++){
+            QJsonObject obj = array.at(i).toObject();
+            QString label = obj["label"].toString();
+            QString command = obj["command"].toString();
+            qDebug() << "Label:" << label;
+            qDebug() << "Command:" << command;
+            checkbox = new QCheckBox(this);
+            checkbox->setText(label);
+            checkBoxes.append(checkbox);
+            commands.append(command);
+            CheckBoxProcessMap[checkbox] = nullptr;
+            checkbox = nullptr;
+        }
+    }
+}
+
+void ExecBox::SetupUI(Ui::MainWindow* m_ui){
+    for (int i = 0; i < checkBoxes.size() ; ++i){
+        QCheckBox* checkbox = checkBoxes[i];
+        checkbox->setStyleSheet("color: black;");
+        m_ui->buttons->addWidget(checkbox);
+    }
+    update();
+}

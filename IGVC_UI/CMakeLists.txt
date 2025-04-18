@@ -70,3 +70,4 @@ install(TARGETS IGVC_UI
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(IGVC_UI)
 endif()
+configure_file(${CMAKE_SOURCE_DIR}/config.json ${CMAKE_BINARY_DIR}/config.json COPYONLY)
