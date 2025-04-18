@@ -1,26 +1,26 @@
 #include "execbox.h"
+#include <QDebug>
+
+ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
 
 
-ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent) {
+    CheckBoxCommandMap[m_ui->electrical] = "ros2 run demo_nodes_cpp talker";
+    CheckBoxCommandMap[m_ui->zed] = "ros2 run demo_nodes_cpp talker";
+    CheckBoxCommandMap[m_ui->gps] = "ros2 run demo_nodes_cpp talker";
+    CheckBoxCommandMap[m_ui->waypoint_following] = "ros2 run demo_nodes_cpp talker";
+    CheckBoxCommandMap[m_ui->navigation] = "ros2 run demo_nodes_cpp talker";
+    CheckBoxCommandMap[m_ui->lane_detection] = "ros2 run demo_nodes_cpp talker";
+    CheckBoxCommandMap[m_ui->lane_following] = "ros2 run demo_nodes_cpp talker";
+    CheckBoxCommandMap[m_ui->idk_one_extra] = "ros2 run demo_nodes_cpp talker";
 
-
-    CheckBoxCommandMap[ui->electrical] = "ros2 run demo_nodes_cpp talker";
-    CheckBoxCommandMap[ui->zed] = "ros2 run demo_nodes_cpp talker";
-    CheckBoxCommandMap[ui->gps] = "ros2 run demo_nodes_cpp talker";
-    CheckBoxCommandMap[ui->waypoint_following] = "ros2 run demo_nodes_cpp talker";
-    CheckBoxCommandMap[ui->navigation] = "ros2 run demo_nodes_cpp talker";
-    CheckBoxCommandMap[ui->lane_detection] = "ros2 run demo_nodes_cpp talker";
-    CheckBoxCommandMap[ui->lane_following] = "ros2 run demo_nodes_cpp talker";
-    CheckBoxCommandMap[ui->idk_one_extra] = "ros2 run demo_nodes_cpp talker";
-
-    CheckBoxProcessMap[ui->electrical] = nullptr;
-    CheckBoxProcessMap[ui->zed] = nullptr;
-    CheckBoxProcessMap[ui->gps] = nullptr;
-    CheckBoxProcessMap[ui->waypoint_following] = nullptr;
-    CheckBoxProcessMap[ui->navigation] = nullptr;
-    CheckBoxProcessMap[ui->lane_detection] = nullptr;
-    CheckBoxProcessMap[ui->lane_following] = nullptr;
-    CheckBoxProcessMap[ui->idk_one_extra] = nullptr;
+    CheckBoxProcessMap[m_ui->electrical] = nullptr;
+    CheckBoxProcessMap[m_ui->zed] = nullptr;
+    CheckBoxProcessMap[m_ui->gps] = nullptr;
+    CheckBoxProcessMap[m_ui->waypoint_following] = nullptr;
+    CheckBoxProcessMap[m_ui->navigation] = nullptr;
+    CheckBoxProcessMap[m_ui->lane_detection] = nullptr;
+    CheckBoxProcessMap[m_ui->lane_following] = nullptr;
+    CheckBoxProcessMap[m_ui->idk_one_extra] = nullptr;
 
     for (auto i = CheckBoxProcessMap.begin(), end = CheckBoxProcessMap.end(); i != end; ++i){
         QCheckBox* checkbox = i.key();
@@ -46,6 +46,17 @@ void ExecBox::StartSession(QProcess* process, const QString& cmd){
     if (!process->waitForStarted()) {
         qDebug() << "Failed to execute "<<cmd;
     }
+
+    connect(process, &QProcess::readyReadStandardOutput, this, [=]() {
+        QString output = process->readAllStandardOutput();
+        m_ui->outputDisplay->appendPlainText(output);
+    });
+
+    connect(process, &QProcess::readyReadStandardError, this, [=]() {
+        QString errorOutput = process->readAllStandardError();
+        m_ui->outputDisplay->appendPlainText("[ERROR] " + errorOutput);
+    });
+
 }
 void ExecBox::StopSession(QProcess* process){
     qDebug()<< "unchecked";

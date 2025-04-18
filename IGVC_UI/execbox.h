@@ -11,6 +11,7 @@ class ExecBox : public QWidget
     Q_OBJECT
 
 private:
+    Ui::MainWindow* m_ui;
 
 public:
     explicit ExecBox(QWidget *parent = nullptr, Ui::MainWindow* ui  = nullptr);

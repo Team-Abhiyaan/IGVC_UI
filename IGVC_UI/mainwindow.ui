@@ -109,7 +109,11 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="commands"/>
+      <layout class="QVBoxLayout" name="commands">
+       <item>
+        <widget class="QPlainTextEdit" name="outputDisplay"/>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>
