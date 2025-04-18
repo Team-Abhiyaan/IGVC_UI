@@ -27,12 +27,22 @@
      <item>
       <layout class="QVBoxLayout" name="buttons">
        <item>
-        <widget class="QCheckBox" name="electrical">
+        <widget class="QCheckBox" name="elecstack">
          <property name="styleSheet">
           <string notr="true">color: #000000;</string>
          </property>
          <property name="text">
-          <string>electrical</string>
+          <string>electstack</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="robot_desc">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>robot_desc</string>
          </property>
         </widget>
        </item>
@@ -47,32 +57,32 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="gps">
+        <widget class="QCheckBox" name="lidar">
          <property name="styleSheet">
           <string notr="true">color: #000000;</string>
          </property>
          <property name="text">
-          <string>gps</string>
+          <string>lidar</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="waypoint_following">
+        <widget class="QCheckBox" name="lidar_range_filter">
          <property name="styleSheet">
           <string notr="true">color: #000000;</string>
          </property>
          <property name="text">
-          <string>waypoint_following</string>
+          <string>lidar_range_filter</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="navigation">
+        <widget class="QCheckBox" name="lidar_angular_filter">
          <property name="styleSheet">
           <string notr="true">color: #000000;</string>
          </property>
          <property name="text">
-          <string>navigation</string>
+          <string>lidar_angular_filter</string>
          </property>
         </widget>
        </item>
@@ -87,22 +97,52 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="lane_following">
+        <widget class="QCheckBox" name="pothole_detection">
          <property name="styleSheet">
           <string notr="true">color: #000000;</string>
          </property>
          <property name="text">
-          <string>lane_following</string>
+          <string>pothole_detection</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="idk_one_extra">
+        <widget class="QCheckBox" name="nav">
          <property name="styleSheet">
           <string notr="true">color: #000000;</string>
          </property>
          <property name="text">
-          <string>idk_one_extra</string>
+          <string>nav</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="pathfinder">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>pathfinder</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="gps">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>gps</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="go">
+         <property name="styleSheet">
+          <string notr="true">color: #000000;</string>
+         </property>
+         <property name="text">
+          <string>go</string>
          </property>
         </widget>
        </item>
