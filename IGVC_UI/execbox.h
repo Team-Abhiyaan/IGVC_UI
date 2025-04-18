@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QProcess>
+#include <QMap>
 #include "./ui_mainwindow.h"
 
 class ExecBox : public QWidget
@@ -13,15 +14,9 @@ private:
 
 public:
     explicit ExecBox(QWidget *parent = nullptr, Ui::MainWindow* ui  = nullptr);
-    QProcess *electrical_process = nullptr
-            // , *zed_process = nullptr
-            // , *gps_process = nullptr
-            // , *waypoint_following_process = nullptr
-            // , *navigation_process = nullptr
-            // , *lane_detection_process = nullptr
-            // , *lane_following_process = nullptr
-            // , *idk_one_extra_process = nullptr
-        ;
+
+    QMap <QCheckBox*, QProcess*> CheckBoxProcessMap;
+    QMap <QCheckBox*, QString> CheckBoxCommandMap;
     void StartSession(QProcess* process, const QString& cmd);
     void StopSession(QProcess* process);
 };
