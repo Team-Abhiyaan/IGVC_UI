@@ -58,6 +58,7 @@ void ExecBox::StartSession(QProcess* process, const QString& cmd){
     {   fullCommand = "source /opt/ros/jazzy/setup.bash && " + cmd;}
 
     process->setWorkingDirectory("/home/");
+
     process->start("bash", QStringList() << "-c" << fullCommand);
 
     if (!process->waitForStarted()) {

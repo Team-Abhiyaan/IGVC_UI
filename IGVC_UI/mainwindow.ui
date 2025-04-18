@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color:white;</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
@@ -151,7 +154,12 @@
      <item>
       <layout class="QVBoxLayout" name="commands">
        <item>
-        <widget class="QPlainTextEdit" name="outputDisplay"/>
+        <widget class="QPlainTextEdit" name="outputDisplay">
+         <property name="styleSheet">
+          <string notr="true">background-color: white;
+color: black;</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
