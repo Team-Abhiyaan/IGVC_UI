@@ -14,16 +14,17 @@ private:
 
 public:
     explicit ExecBox(QWidget *parent = nullptr, Ui::MainWindow* ui  = nullptr);
-    QProcess *electrical_process = nullptr
-            , *zed_process = nullptr
-            , *gps_process = nullptr
-            , *waypoint_following_process = nullptr
-            , *navigation_process = nullptr
-            , *lane_detection_process = nullptr
-            , *lane_following_process = nullptr
-            , *idk_one_extra_process = nullptr;
-    void StartSession(QProcess* process, const QString cmd);
-    void StopSession(QProcess* process);
+    QProcess electrical_process
+            // , *zed_process = nullptr
+            // , *gps_process = nullptr
+            // , *waypoint_following_process = nullptr
+            // , *navigation_process = nullptr
+            // , *lane_detection_process = nullptr
+            // , *lane_following_process = nullptr
+            // , *idk_one_extra_process = nullptr
+        ;
+    void StartSession(QProcess& process, const QString cmd);
+    void StopSession(QProcess& process);
 };
 
 #endif // EXECBOX_H
