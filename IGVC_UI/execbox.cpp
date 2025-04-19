@@ -1,26 +1,28 @@
 #include "execbox.h"
 #include <QDebug>
+#include <QListWidgetItem>
 
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
 
     ReadFile();
+    SetupUI();
 
     for(int i = 0;i<checkBoxes.size(); ++i){
         QCheckBox* checkbox = checkBoxes[i];
         connect(checkbox, &QCheckBox::toggled, this, [=](bool checked) {
             if (checked) {
                 CheckBoxProcessMap[checkbox] = new QProcess(this);
-                StartSession(CheckBoxProcessMap[checkbox], commands[i]);
+                StartSession(CheckBoxProcessMap[checkbox], commands[i], checkbox->text());
             }
             else {
-                StopSession(CheckBoxProcessMap[checkbox]);
+                StopSession(CheckBoxProcessMap[checkbox], checkbox->text());
                 CheckBoxProcessMap[checkbox] = nullptr;
             }
         });
     }
 }
 //this executes the command without a terminal window.
-void ExecBox::StartSession(QProcess* process, const QString& cmd){
+void ExecBox::StartSession(QProcess* process, const QString& cmd, const QString& label){
     qDebug()<<cmd;
 
     QString fullCommand;
@@ -40,16 +42,20 @@ void ExecBox::StartSession(QProcess* process, const QString& cmd){
 
     connect(process, &QProcess::readyReadStandardOutput, this, [=]() {
         QString output = process->readAllStandardOutput();
-        m_ui->outputDisplay->appendPlainText(output);
+        m_ui->TerminalDisplay->appendPlainText(output);
     });
 
     connect(process, &QProcess::readyReadStandardError, this, [=]() {
         QString errorOutput = process->readAllStandardError();
-        m_ui->outputDisplay->appendPlainText("[ERROR] " + errorOutput);
+        m_ui->TerminalDisplay->appendPlainText("[ERROR] " + errorOutput);
     });
 
+
+    // Add label to running list
+    m_ui->runningScriptsList->addItem(label);
+
 }
-void ExecBox::StopSession(QProcess* process){
+void ExecBox::StopSession(QProcess* process, const QString& label){
 
     process->terminate();
     if (!process->waitForFinished(3000)) {
@@ -57,6 +63,14 @@ void ExecBox::StopSession(QProcess* process){
         process->waitForFinished(3000);
     }
     delete process;
+
+    // Remove from the running scripts list
+    for (int i = 0; i < m_ui->runningScriptsList->count(); ++i) {
+        if (m_ui->runningScriptsList->item(i)->text() == label) {
+            delete m_ui->runningScriptsList->takeItem(i);
+            break;
+        }
+    }
 
 }
 
@@ -94,18 +108,27 @@ void ExecBox::ReadFile(){
             checkbox->setText(label);
             checkBoxes.append(checkbox);
             commands.append(command);
-            SetupUI(checkbox);
             CheckBoxProcessMap[checkbox] = nullptr;
             checkbox = nullptr;
         }
     }
 }
 
-void ExecBox::SetupUI(QCheckBox* checkbox){
+void ExecBox::SetupUI(){
     // checkbox->setStyleSheet("color: black;");
-    checkbox->setStyleSheet(
-        "QCheckBox { color: black; }"
-        "QCheckBox:hover { color: blue; font-weight: bold; }"
-    );
-    m_ui->buttons->addWidget(checkbox);
+    for (int i = 0; i < checkBoxes.size(); ++i)
+    {   QCheckBox* checkbox = checkBoxes[i];
+        checkbox->setStyleSheet("color: black;");
+        m_ui->buttons->addWidget(checkbox);
+    }
+
+    // Connect item click to show output
+    connect(m_ui->runningScriptsList, &QListWidget::itemClicked, this, [=](QListWidgetItem* item) {
+        QString scriptName = item->text();
+        //placeholder
+        m_ui->outputDisplay->clear();
+        m_ui->outputDisplay->appendPlainText("Showing output for: " + scriptName);
+    });
+
+    update();
 }

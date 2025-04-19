@@ -17,23 +17,56 @@
    <string notr="true">background-color:white;</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <layout class="QVBoxLayout" name="buttons"/>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="commands"/>
-      </item>
-     </layout>
+     <layout class="QVBoxLayout" name="buttons"/>
     </item>
     <item>
-     <widget class="QPlainTextEdit" name="outputDisplay">
-      <property name="styleSheet">
-       <string notr="true">background-color: white;
+     <layout class="QVBoxLayout" name="commands"/>
+    </item>
+    <item>
+     <widget class="QListWidget" name="runningScriptsList"/>
+    </item>
+    <item>
+     <widget class="QWidget" name="rightPanel" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="outputDisplayLabel">
+         <property name="text">
+          <string>Script Output</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="outputDisplay">
+         <property name="styleSheet">
+          <string notr="true">background-color: white;
 color: black;</string>
-      </property>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="TerminalDisplayLabel">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="text">
+          <string>Terminal Output</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="TerminalDisplay">
+         <property name="styleSheet">
+          <string notr="true">background-color: black;
+color: blue;
+font-family: Consolas, monospace;
+font-size: 12pt;
+</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
