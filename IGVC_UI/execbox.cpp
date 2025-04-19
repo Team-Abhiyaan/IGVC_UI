@@ -4,7 +4,6 @@
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
 
     ReadFile();
-    SetupUI(m_ui);
 
     for(int i = 0;i<checkBoxes.size(); ++i){
         QCheckBox* checkbox = checkBoxes[i];
@@ -22,7 +21,6 @@ ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui)
 }
 //this executes the command without a terminal window.
 void ExecBox::StartSession(QProcess* process, const QString& cmd){
-    qDebug()<< "checked";
     qDebug()<<cmd;
 
     QString fullCommand;
@@ -52,14 +50,14 @@ void ExecBox::StartSession(QProcess* process, const QString& cmd){
 
 }
 void ExecBox::StopSession(QProcess* process){
-    qDebug()<< "unchecked";
+
     process->terminate();
     if (!process->waitForFinished(3000)) {
         process->kill();
         process->waitForFinished(3000);
     }
     delete process;
-    qDebug()<<"Process terminated";
+
 }
 
 void ExecBox::ReadFile(){
@@ -96,17 +94,18 @@ void ExecBox::ReadFile(){
             checkbox->setText(label);
             checkBoxes.append(checkbox);
             commands.append(command);
+            SetupUI(checkbox);
             CheckBoxProcessMap[checkbox] = nullptr;
             checkbox = nullptr;
         }
     }
 }
 
-void ExecBox::SetupUI(Ui::MainWindow* m_ui){
-    for (int i = 0; i < checkBoxes.size() ; ++i){
-        QCheckBox* checkbox = checkBoxes[i];
-        checkbox->setStyleSheet("color: black;");
-        m_ui->buttons->addWidget(checkbox);
-    }
-    update();
+void ExecBox::SetupUI(QCheckBox* checkbox){
+    // checkbox->setStyleSheet("color: black;");
+    checkbox->setStyleSheet(
+        "QCheckBox { color: black; }"
+        "QCheckBox:hover { color: blue; font-weight: bold; }"
+    );
+    m_ui->buttons->addWidget(checkbox);
 }

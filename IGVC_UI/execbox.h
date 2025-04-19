@@ -11,6 +11,7 @@
 #include <QJsonParseError>
 #include <QDebug>
 #include <QCheckBox>
+#include <QScrollArea>
 
 
 #include "./ui_mainwindow.h"
@@ -30,7 +31,7 @@ public:
     QVector<QString> commands;
 
     void ReadFile();
-    void SetupUI(Ui::MainWindow* m_ui);
+    void SetupUI(QCheckBox* checkbox);
     void StartSession(QProcess* process, const QString& cmd);
     void StopSession(QProcess* process);
 };
