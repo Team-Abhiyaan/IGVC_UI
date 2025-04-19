@@ -1,5 +1,6 @@
 #include "execbox.h"
 #include <QDebug>
+#include <QTimer>
 #include <QListWidgetItem>
 
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
@@ -19,6 +20,22 @@ ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui)
             }
         });
     }
+
+    updateTimer= new QTimer(this);
+    updateTimer->setInterval(500);
+
+    connect(updateTimer, &QTimer::timeout, this, [=]() {
+        if (!currentSelectedLabel.isEmpty()) {
+            QString fullOutput = ScriptOutputMap.value(currentSelectedLabel);
+            if (fullOutput != lastShownOutput) {
+                m_ui->TerminalDisplay->clear();
+                m_ui->TerminalDisplay->appendPlainText(fullOutput);
+                lastShownOutput = fullOutput;
+            }
+        }
+    });
+
+    updateTimer->start();
 }
 //this executes the command without a terminal window.
 void ExecBox::StartSession(QProcess* process, const QString& cmd, const QString& label){
@@ -127,10 +144,8 @@ void ExecBox::SetupUI(QCheckBox* checkbox){
 
     // Connect item click to show output
     connect(m_ui->runningScriptsList, &QListWidget::itemClicked, this, [=](QListWidgetItem* item) {
-        QString scriptName = item->text();
-        //placeholder
-        m_ui->TerminalDisplay->clear();
-        m_ui->TerminalDisplay->appendPlainText(ScriptOutputMap.value(scriptName, "[No output yet]"));
+        currentSelectedLabel = item->text();
+        lastShownOutput.clear();
     });
 
     update();

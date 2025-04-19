@@ -23,6 +23,9 @@ class ExecBox : public QWidget
 private:
     Ui::MainWindow* m_ui;
     QMap<QString, QString> ScriptOutputMap;
+    QTimer* updateTimer;
+    QString currentSelectedLabel;
+    QString lastShownOutput;
 
 public:
     explicit ExecBox(QWidget *parent = nullptr, Ui::MainWindow* ui  = nullptr);
