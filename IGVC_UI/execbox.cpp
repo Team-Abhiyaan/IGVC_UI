@@ -121,7 +121,7 @@ void ExecBox::ReadFile(){
         QJsonObject rootObj = Document.object();
 
         working_directory = rootObj["working_directory"].toString();
-        qDebug()<<working_directory;
+        qDebug()<<"Current working directory:"<<working_directory;
 
         if(!rootObj["commands"].isArray()){
             qDebug()<<"Expected 'commands' to be an array";
