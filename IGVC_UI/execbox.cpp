@@ -5,7 +5,6 @@
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
 
     ReadFile();
-    SetupUI();
 
     for(int i = 0;i<checkBoxes.size(); ++i){
         QCheckBox* checkbox = checkBoxes[i];
@@ -108,19 +107,20 @@ void ExecBox::ReadFile(){
             checkbox->setText(label);
             checkBoxes.append(checkbox);
             commands.append(command);
+            SetupUI(checkbox);
             CheckBoxProcessMap[checkbox] = nullptr;
             checkbox = nullptr;
         }
     }
 }
 
-void ExecBox::SetupUI(){
+void ExecBox::SetupUI(QCheckBox* checkbox){
     // checkbox->setStyleSheet("color: black;");
-    for (int i = 0; i < checkBoxes.size(); ++i)
-    {   QCheckBox* checkbox = checkBoxes[i];
-        checkbox->setStyleSheet("color: black;");
-        m_ui->buttons->addWidget(checkbox);
-    }
+    checkbox->setStyleSheet(
+        "QCheckBox { color: black; }"
+        "QCheckBox:hover { color: blue; font-weight: bold; }"
+        );
+    m_ui->buttons->addWidget(checkbox);
 
     // Connect item click to show output
     connect(m_ui->runningScriptsList, &QListWidget::itemClicked, this, [=](QListWidgetItem* item) {

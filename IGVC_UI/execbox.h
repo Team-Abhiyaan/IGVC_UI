@@ -31,7 +31,7 @@ public:
     QVector<QString> commands;
 
     void ReadFile();
-    void SetupUI();
+    void SetupUI(QCheckBox* checkbox);
     void StartSession(QProcess* process, const QString& cmd, const QString& label);
     void StopSession(QProcess* process, const QString& label);
 };
