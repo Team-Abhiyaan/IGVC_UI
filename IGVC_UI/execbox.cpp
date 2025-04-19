@@ -41,13 +41,14 @@ void ExecBox::StartSession(QProcess* process, const QString& cmd, const QString&
 
     connect(process, &QProcess::readyReadStandardOutput, this, [=]() {
         QString output = process->readAllStandardOutput();
-        m_ui->TerminalDisplay->appendPlainText(output);
+        ScriptOutputMap[label] += output;
     });
 
     connect(process, &QProcess::readyReadStandardError, this, [=]() {
-        QString errorOutput = process->readAllStandardError();
-        m_ui->TerminalDisplay->appendPlainText("[ERROR] " + errorOutput);
+        QString errorOutput = "[ERROR] " + process->readAllStandardError();
+        ScriptOutputMap[label] += errorOutput;
     });
+
 
 
     // Add label to running list
@@ -70,6 +71,8 @@ void ExecBox::StopSession(QProcess* process, const QString& label){
             break;
         }
     }
+
+    ScriptOutputMap.remove(label);
 
 }
 
@@ -126,8 +129,8 @@ void ExecBox::SetupUI(QCheckBox* checkbox){
     connect(m_ui->runningScriptsList, &QListWidget::itemClicked, this, [=](QListWidgetItem* item) {
         QString scriptName = item->text();
         //placeholder
-        m_ui->outputDisplay->clear();
-        m_ui->outputDisplay->appendPlainText("Showing output for: " + scriptName);
+        m_ui->TerminalDisplay->clear();
+        m_ui->TerminalDisplay->appendPlainText(ScriptOutputMap.value(scriptName, "[No output yet]"));
     });
 
     update();

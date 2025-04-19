@@ -43,21 +43,6 @@ color: black;
      <widget class="QWidget" name="rightPanel" native="true">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLabel" name="outputDisplayLabel">
-         <property name="text">
-          <string>Script Output</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPlainTextEdit" name="outputDisplay">
-         <property name="styleSheet">
-          <string notr="true">background-color: white;
-color: black;</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QLabel" name="TerminalDisplayLabel">
          <property name="styleSheet">
           <string notr="true"/>
