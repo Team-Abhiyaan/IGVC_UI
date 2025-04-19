@@ -12,6 +12,9 @@
 #include <QDebug>
 #include <QCheckBox>
 #include <QScrollArea>
+#include <QDebug>
+#include <QTimer>
+#include <QListWidgetItem>
 
 
 #include "./ui_mainwindow.h"
@@ -26,6 +29,7 @@ private:
     QTimer* updateTimer;
     QString currentSelectedLabel;
     QString lastShownOutput;
+    QString working_directory;
 
 public:
     explicit ExecBox(QWidget *parent = nullptr, Ui::MainWindow* ui  = nullptr);

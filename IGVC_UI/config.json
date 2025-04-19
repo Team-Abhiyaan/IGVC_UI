@@ -1,4 +1,5 @@
-[
+{  "working_directory": "/home/",
+  "commands":[
   { "label": "elecstack", "command": "ros2 launch elecstack elec_launch.py"},
   { "label": "robot_desc", "command": "ros2 launch robot_desc robot_launch.py"},
   { "label": "zed", "command": "sudo -E env bash -c 'source /opt/ros/humble/setup.bash; ros2 launch zed_wrapper zed_camera.launch.py camera_model:=zed2i publish_tf:=false publish_map_tf:=false'"},
@@ -11,4 +12,5 @@
   { "label": "pathfinder", "command": "ros2 run path_finder find_path"},
   { "label": "gps", "command": "ros2 run demo_nodes_cpp talker"},
   { "label": "go", "command": "ros2 run nav_commander go"}
-]
+  ]
+}

@@ -1,12 +1,11 @@
 #include "execbox.h"
-#include <QDebug>
-#include <QTimer>
-#include <QListWidgetItem>
 
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
 
+    //reading json file
     ReadFile();
 
+    //connecting each checkbox to their processes.
     for(int i = 0;i<checkBoxes.size(); ++i){
         QCheckBox* checkbox = checkBoxes[i];
         connect(checkbox, &QCheckBox::toggled, this, [=](bool checked) {
@@ -37,18 +36,18 @@ ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui)
 
     updateTimer->start();
 }
-//this executes the command without a terminal window.
+// this function executes the command without a terminal window.
 void ExecBox::StartSession(QProcess* process, const QString& cmd, const QString& label){
-    qDebug()<<cmd;
 
     QString fullCommand;
 
+    // Executes both sourcing ros2 and given command execution
     if (cmd.contains("source") || cmd.contains("sudo"))
     {   fullCommand = cmd;}
     else
     {   fullCommand = "source /opt/ros/jazzy/setup.bash && " + cmd;}
 
-    process->setWorkingDirectory("/home/");
+    process->setWorkingDirectory(working_directory);
 
     process->start("bash", QStringList() << "-c" << fullCommand);
 
@@ -74,7 +73,10 @@ void ExecBox::StartSession(QProcess* process, const QString& cmd, const QString&
 }
 void ExecBox::StopSession(QProcess* process, const QString& label){
 
+    //terminate the given process
     process->terminate();
+
+    //if not terminated within 3s, kill the process
     if (!process->waitForFinished(3000)) {
         process->kill();
         process->waitForFinished(3000);
@@ -93,6 +95,7 @@ void ExecBox::StopSession(QProcess* process, const QString& label){
 
 }
 
+// this function reads the json file
 void ExecBox::ReadFile(){
 
     QFile File("config.json");
@@ -110,23 +113,36 @@ void ExecBox::ReadFile(){
         else{
             qDebug()<<"No error found in Json Data";
         }
-        if (!Document.isArray()) {
-            qDebug() << "Expected a JSON array";
+        if (!Document.isObject()) {
+            qDebug() << "Expected a JSON object at root";
             return;
         }
-        QJsonArray array = Document.array();
+
+        QJsonObject rootObj = Document.object();
+
+        working_directory = rootObj["working_directory"].toString();
+        qDebug()<<working_directory;
+
+        if(!rootObj["commands"].isArray()){
+            qDebug()<<"Expected 'commands' to be an array";
+            return;
+        }
+
+        QJsonArray array = rootObj["commands"].toArray();
 
         QCheckBox* checkbox = nullptr;
         for(int i = 0; i < array.size(); i++){
             QJsonObject obj = array.at(i).toObject();
             QString label = obj["label"].toString();
             QString command = obj["command"].toString();
-            qDebug() << "Label:" << label;
-            qDebug() << "Command:" << command;
             checkbox = new QCheckBox(this);
             checkbox->setText(label);
+
+            // after getting each checkbox and command,
+            // UI is updated and command and checkbox are added to their corresponding list
             checkBoxes.append(checkbox);
             commands.append(command);
+
             SetupUI(checkbox);
             CheckBoxProcessMap[checkbox] = nullptr;
             checkbox = nullptr;
@@ -135,7 +151,7 @@ void ExecBox::ReadFile(){
 }
 
 void ExecBox::SetupUI(QCheckBox* checkbox){
-    // checkbox->setStyleSheet("color: black;");
+
     checkbox->setStyleSheet(
         "QCheckBox { color: black; }"
         "QCheckBox:hover { color: blue; font-weight: bold; }"
