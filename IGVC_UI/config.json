@@ -1,7 +1,7 @@
 {  "working_directory": "/home/",
   "commands":[
   { "label": "elecstack", "command": "ros2 launch elecstack elec_launch.py"},
-  { "label": "robot_desc", "command": "ros2 launch robot_desc robot_launch.py"},
+  { "label": "robot_desc", "command": "echo 5"},
   { "label": "zed", "command": "sudo -E env bash -c 'source /opt/ros/humble/setup.bash; ros2 launch zed_wrapper zed_camera.launch.py camera_model:=zed2i publish_tf:=false publish_map_tf:=false'"},
   { "label": "lidar", "command": "ros2 launch sllidar_ros2 sllidar_a2m12_launch.py"},
   { "label": "lidar_range_filter", "command": "ros2 launch laser_filters range_filter_example.launch.py"},

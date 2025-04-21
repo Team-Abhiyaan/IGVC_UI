@@ -1,4 +1,5 @@
 #include "execbox.h"
+#include "spoiler.h"
 
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
 
@@ -66,9 +67,7 @@ void ExecBox::StartSession(QProcess* process, const QString& cmd, const QString&
     });
 
 
-
-    // Add label to running list
-    m_ui->runningScriptsList->addItem(label);
+    createSpoiler(label);
 
 }
 void ExecBox::StopSession(QProcess* process, const QString& label){
@@ -85,13 +84,22 @@ void ExecBox::StopSession(QProcess* process, const QString& label){
 
     // Remove from the running scripts list
     for (int i = 0; i < m_ui->runningScriptsList->count(); ++i) {
-        if (m_ui->runningScriptsList->item(i)->text() == label) {
-            delete m_ui->runningScriptsList->takeItem(i);
-            break;
+        QLayoutItem* item = m_ui->runningScriptsList->itemAt(i);
+        if(item){
+            QWidget* widget = item->widget();
+            if (Spoiler* spoiler = qobject_cast<Spoiler*>(widget)) {
+                if(spoiler->toggleButton.text()==label){
+                    m_ui->runningScriptsList->takeAt(i);
+                    delete widget;
+                    delete item;
+                    break;
+                }
+            }
         }
     }
-
     ScriptOutputMap.remove(label);
+    update();
+    // qobject_cast<Spoiler*>(m_ui->runningScriptsList->widget())
 
 }
 
@@ -158,11 +166,47 @@ void ExecBox::SetupUI(QCheckBox* checkbox){
         );
     m_ui->buttons->addWidget(checkbox);
 
-    // Connect item click to show output
-    connect(m_ui->runningScriptsList, &QListWidget::itemClicked, this, [=](QListWidgetItem* item) {
-        currentSelectedLabel = item->text();
-        lastShownOutput.clear();
-    });
 
     update();
+}
+void ExecBox::createSpoiler(const QString label){
+    Spoiler *spoiler = new Spoiler(label);
+
+    // Add content to the spoiler
+    QVBoxLayout *spoilerContent = new QVBoxLayout();
+    QSlider *slider = new QSlider(Qt::Horizontal, this);
+
+    // Set the range of the slider
+    slider->setMinimum(0);   // minimum value
+    slider->setMaximum(100); // maximum value
+    slider->setValue(50);    // initial value
+    slider->setTickPosition(QSlider::TicksBelow); // show ticks below the slider
+    slider->setTickInterval(10);  // interval between ticks
+    slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+
+    // Create a label to display the slider value
+    QLabel *param_name = new QLabel("Value: 50", this);
+
+    // Connect the slider's valueChanged signal to update the label
+    connect(slider, &QSlider::valueChanged, [param_name](int value) {
+        param_name->setText("Value: " + QString::number(value));
+    });
+    param_name->setStyleSheet("QLabel {"
+                         "font-size: 16px;"
+                         "color: #000000;"
+                         "}");
+    spoilerContent->addWidget(param_name);
+
+    spoilerContent->addWidget(slider);
+
+    spoiler->setContentLayout(*spoilerContent);
+    connect(&spoiler->toggleButton, &QToolButton::clicked, this, [=](bool checked) {
+        currentSelectedLabel = label;
+        lastShownOutput.clear();
+        qDebug() << "Spoiler clicked:" << label;
+    });
+
+    // Add spoiler to layout
+    m_ui->runningScriptsList->addWidget(spoiler);
 }

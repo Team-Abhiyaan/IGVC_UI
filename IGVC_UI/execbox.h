@@ -42,6 +42,7 @@ public:
     void SetupUI(QCheckBox* checkbox);
     void StartSession(QProcess* process, const QString& cmd, const QString& label);
     void StopSession(QProcess* process, const QString& label);
+    void createSpoiler(const QString label);
 };
 
 #endif // EXECBOX_H
