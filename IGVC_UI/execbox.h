@@ -16,7 +16,7 @@
 #include <QTimer>
 #include <QListWidgetItem>
 
-
+#include "parameter.h"
 #include "./ui_mainwindow.h"
 
 class ExecBox : public QWidget
@@ -38,11 +38,13 @@ public:
     QVector<QCheckBox* > checkBoxes;
     QVector<QString> commands;
 
+    QMap<QString, QVector<parameter>> commandParameterMap;
+
     void ReadFile();
     void SetupUI(QCheckBox* checkbox);
     void StartSession(QProcess* process, const QString& cmd, const QString& label);
     void StopSession(QProcess* process, const QString& label);
-    void createSpoiler(const QString label);
+    void createSpoiler(const QString command_label, QVector<parameter> parameters);
 };
 
 #endif // EXECBOX_H

@@ -5,9 +5,23 @@ ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui)
 
     //reading json file
     ReadFile();
+    commandParameterMap["elecstack"].append(parameter("test" + QString("elecstack"), 5, 10, 7));
+    commandParameterMap["robot_desc"].append(parameter("test" + QString("robot_desc"), 0, 5, 3));
+    commandParameterMap["zed"].append(parameter("test" + QString("zed"), 5, 15, 10));
+    commandParameterMap["lidar"].append(parameter("test" + QString("lidar"), 10, 20, 15));
+    commandParameterMap["lidar_range_filter"].append(parameter("test" + QString("lidar_range_filter"), 0, 30, 15));
+    commandParameterMap["lidar_angular_filter"].append(parameter("test" + QString("lidar_angular_filter"), 0, 10, 5));
+    commandParameterMap["lane_detection"].append(parameter("test" + QString("lane_detection"), 1, 10, 6));
+    commandParameterMap["pothole_detection"].append(parameter("test" + QString("pothole_detection"), 3, 12, 7));
+    // commandParameterMap["nav"].append(parameter("test" + QString("nav"), 0, 5, 3));
+    commandParameterMap["pathfinder"].append(parameter("test" + QString("pathfinder"), 10, 30, 20));
+    commandParameterMap["gps"].append(parameter("test" + QString("gps"), 5, 15, 10));
+    commandParameterMap["go"].append(parameter("test" + QString("go"), 1, 5, 3));
+
+
 
     //connecting each checkbox to their processes.
-    for(int i = 0;i<checkBoxes.size(); ++i){
+    for(int i = 0;i < checkBoxes.size(); ++i){
         QCheckBox* checkbox = checkBoxes[i];
         connect(checkbox, &QCheckBox::toggled, this, [=](bool checked) {
             if (checked) {
@@ -67,7 +81,7 @@ void ExecBox::StartSession(QProcess* process, const QString& cmd, const QString&
     });
 
 
-    createSpoiler(label);
+    createSpoiler(label, commandParameterMap[label]);
 
 }
 void ExecBox::StopSession(QProcess* process, const QString& label){
@@ -87,11 +101,16 @@ void ExecBox::StopSession(QProcess* process, const QString& label){
         QLayoutItem* item = m_ui->runningScriptsList->itemAt(i);
         if(item){
             QWidget* widget = item->widget();
-            if (Spoiler* spoiler = qobject_cast<Spoiler*>(widget)) {
+            Spoiler* spoiler = qobject_cast<Spoiler*>(widget);
+            if (spoiler!=nullptr) {
                 if(spoiler->toggleButton.text()==label){
                     m_ui->runningScriptsList->takeAt(i);
-                    delete widget;
-                    delete item;
+                    // qDebug()<<widget<<sizeof(*widget);
+                    // delete widget;
+                    // qDebug()<<item<<sizeof(*widget);
+                    // delete item;
+                    // qDebug()<<spoiler<<sizeof(*spoiler);
+                    delete spoiler;
                     break;
                 }
             }
@@ -169,43 +188,48 @@ void ExecBox::SetupUI(QCheckBox* checkbox){
 
     update();
 }
-void ExecBox::createSpoiler(const QString label){
-    Spoiler *spoiler = new Spoiler(label);
+void ExecBox::createSpoiler(const QString command_label, QVector<parameter> parameters){
+    Spoiler *spoiler = new Spoiler(command_label);
+    qDebug()<<spoiler<<sizeof(*spoiler);
 
     // Add content to the spoiler
     QVBoxLayout *spoilerContent = new QVBoxLayout();
-    QSlider *slider = new QSlider(Qt::Horizontal, this);
+    qDebug()<<spoilerContent<<sizeof(spoilerContent);
+    for(auto& param: parameters){
+        QSlider *slider = new QSlider(Qt::Horizontal, this);
+        // Set the range of the slider
+        slider->setMinimum(param.min);   // minimum value
+        slider->setMaximum(param.max); // maximum value
+        slider->setValue(param.initial);    // initial value
+        slider->setTickPosition(QSlider::TicksBelow); // show ticks below the slider
+        slider->setTickInterval(1);  // interval between ticks
+        slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-    // Set the range of the slider
-    slider->setMinimum(0);   // minimum value
-    slider->setMaximum(100); // maximum value
-    slider->setValue(50);    // initial value
-    slider->setTickPosition(QSlider::TicksBelow); // show ticks below the slider
-    slider->setTickInterval(10);  // interval between ticks
-    slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
+        // Create a label to display the slider value
+        QLabel *param_name = new QLabel(param.label + ": " + QString::number(param.initial), this);
 
-    // Create a label to display the slider value
-    QLabel *param_name = new QLabel("Value: 50", this);
+        // Connect the slider's valueChanged signal to update the label
+        connect(slider, &QSlider::valueChanged, this, [param_name, param](int value) {
+            param_name->setText(param.label + ": " + QString::number(value));
+        });
+        param_name->setStyleSheet("QLabel {"
+                             "font-size: 16px;"
+                             "color: #000000;"
+                             "}");
+        spoilerContent->addWidget(param_name);
 
-    // Connect the slider's valueChanged signal to update the label
-    connect(slider, &QSlider::valueChanged, [param_name](int value) {
-        param_name->setText("Value: " + QString::number(value));
-    });
-    param_name->setStyleSheet("QLabel {"
-                         "font-size: 16px;"
-                         "color: #000000;"
-                         "}");
-    spoilerContent->addWidget(param_name);
+        spoilerContent->addWidget(slider);
 
-    spoilerContent->addWidget(slider);
-
-    spoiler->setContentLayout(*spoilerContent);
-    connect(&spoiler->toggleButton, &QToolButton::clicked, this, [=](bool checked) {
-        currentSelectedLabel = label;
-        lastShownOutput.clear();
-        qDebug() << "Spoiler clicked:" << label;
-    });
+        spoiler->setContentLayout(*spoilerContent);
+        connect(&spoiler->toggleButton, &QToolButton::clicked, this, [=](bool checked) {
+            if(checked == true){
+                currentSelectedLabel = command_label;
+                lastShownOutput.clear();
+            }
+            qDebug() << "Spoiler clicked:" << command_label;
+        });
+    }
 
     // Add spoiler to layout
     m_ui->runningScriptsList->addWidget(spoiler);

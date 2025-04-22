@@ -5,6 +5,7 @@
 Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *parent) : QWidget(parent), animationDuration(animationDuration) {
     toggleButton.setStyleSheet(
         "QToolButton {"
+        " font-size: 18px;"
         "  border: none;"
         "  color: black;"
         "  background-color: transparent;"
@@ -21,6 +22,7 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
     headerLine.setFrameShape(QFrame::HLine);
     headerLine.setFrameShadow(QFrame::Sunken);
     headerLine.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    headerLine.setVisible(false);
 
     contentArea.setStyleSheet(
         "QScrollArea {"
