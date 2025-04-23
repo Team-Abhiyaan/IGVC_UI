@@ -5,10 +5,10 @@
 class parameter{
 public:
     QString label;
-    int min;
-    int max;
-    int initial;
-    explicit parameter(const QString& label = "", int min = 0, int max = 100, int initial =  10);
+    double min;
+    double max;
+    double initial;
+    explicit parameter(const QString& label = "", double min = 0, double max = 100, double initial =  10);
 };
 
 #endif // PARAMETER_H

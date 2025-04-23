@@ -4,19 +4,20 @@
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
 
     //reading json file
-    ReadFile();
-    commandParameterMap["elecstack"].append(parameter("test" + QString("elecstack"), 5, 10, 7));
-    commandParameterMap["robot_desc"].append(parameter("test" + QString("robot_desc"), 0, 5, 3));
-    commandParameterMap["zed"].append(parameter("test" + QString("zed"), 5, 15, 10));
-    commandParameterMap["lidar"].append(parameter("test" + QString("lidar"), 10, 20, 15));
-    commandParameterMap["lidar_range_filter"].append(parameter("test" + QString("lidar_range_filter"), 0, 30, 15));
-    commandParameterMap["lidar_angular_filter"].append(parameter("test" + QString("lidar_angular_filter"), 0, 10, 5));
-    commandParameterMap["lane_detection"].append(parameter("test" + QString("lane_detection"), 1, 10, 6));
-    commandParameterMap["pothole_detection"].append(parameter("test" + QString("pothole_detection"), 3, 12, 7));
-    // commandParameterMap["nav"].append(parameter("test" + QString("nav"), 0, 5, 3));
-    commandParameterMap["pathfinder"].append(parameter("test" + QString("pathfinder"), 10, 30, 20));
-    commandParameterMap["gps"].append(parameter("test" + QString("gps"), 5, 15, 10));
-    commandParameterMap["go"].append(parameter("test" + QString("go"), 1, 5, 3));
+    ReadJSON();
+    ReadYAML();
+    // commandParameterMap["elecstack"].append(parameter("test" + QString("elecstack"), 5, 10, 7));
+    // commandParameterMap["robot_desc"].append(parameter("test" + QString("robot_desc"), 0, 5, 3));
+    // commandParameterMap["zed"].append(parameter("test" + QString("zed"), 5, 15, 10));
+    // commandParameterMap["lidar"].append(parameter("test" + QString("lidar"), 10, 20, 15));
+    // commandParameterMap["lidar_range_filter"].append(parameter("test" + QString("lidar_range_filter"), 0, 30, 15));
+    // commandParameterMap["lidar_angular_filter"].append(parameter("test" + QString("lidar_angular_filter"), 0, 10, 5));
+    // commandParameterMap["lane_detection"].append(parameter("test" + QString("lane_detection"), 1, 10, 6));
+    // commandParameterMap["pothole_detection"].append(parameter("test" + QString("pothole_detection"), 3, 12, 7));
+    // // commandParameterMap["nav"].append(parameter("test" + QString("nav"), 0, 5, 3));
+    // commandParameterMap["pathfinder"].append(parameter("test" + QString("pathfinder"), 10, 30, 20));
+    // commandParameterMap["gps"].append(parameter("test" + QString("gps"), 5, 15, 10));
+    // commandParameterMap["go"].append(parameter("test" + QString("go"), 1, 5, 3));
 
 
 
@@ -123,7 +124,7 @@ void ExecBox::StopSession(QProcess* process, const QString& label){
 }
 
 // this function reads the json file
-void ExecBox::ReadFile(){
+void ExecBox::ReadJSON(){
 
     QFile File("config.json");
     QByteArray Bytes;
@@ -177,6 +178,29 @@ void ExecBox::ReadFile(){
     }
 }
 
+void ExecBox::ReadYAML(){
+    try {
+        YAML::Node config = YAML::LoadFile("../../config.yaml");
+        for(const auto& command : config){
+            QString command_label = QString::fromStdString(command.first.as<std::string>());
+            qDebug()<<command_label;
+            for(const auto& param:command.second){
+                QString param_label = QString::fromStdString(param.first.as<std::string>());
+                double initial_value = param.second.as<double>();
+                qDebug()<<param_label<<initial_value;
+                commandParameterMap[command_label].append(parameter(param_label, 0, 100, initial_value));
+            }
+        }
+
+    } catch (const YAML::ParserException& ex) {
+        qCritical() << "Error parsing YAML:" << ex.what();
+    } catch (const YAML::BadFile& ex) {
+        qCritical() << "Error reading YAML file:" << ex.what();
+    } catch (const YAML::Exception& ex) {
+        qCritical() << "YAML Error:" << ex.what();
+    }
+}
+
 void ExecBox::SetupUI(QCheckBox* checkbox){
 
     checkbox->setStyleSheet(
@@ -194,43 +218,76 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
 
     // Add content to the spoiler
     QVBoxLayout *spoilerContent = new QVBoxLayout();
+    if (parameters.isEmpty()) {
+        QLabel *emptyLabel = new QLabel("No parameters", this);
+        emptyLabel->setStyleSheet("font-style: italic; color: black;");
+        spoilerContent->addWidget(emptyLabel);
+    }
+
     qDebug()<<spoilerContent<<sizeof(spoilerContent);
+
     for(auto& param: parameters){
         QSlider *slider = new QSlider(Qt::Horizontal, this);
+        qDebug()<<param.label<<param.min<<param.max<<param.initial;
+        double scaleFactor = 100;
         // Set the range of the slider
-        slider->setMinimum(param.min);   // minimum value
-        slider->setMaximum(param.max); // maximum value
-        slider->setValue(param.initial);    // initial value
+        slider->setMinimum(int(param.min * scaleFactor));   // minimum value
+        slider->setMaximum(int(param.max * scaleFactor)); // maximum value
+        slider->setValue(int(param.initial * scaleFactor));    // initial value
         slider->setTickPosition(QSlider::TicksBelow); // show ticks below the slider
         slider->setTickInterval(1);  // interval between ticks
         slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
 
         // Create a label to display the slider value
-        QLabel *param_name = new QLabel(param.label + ": " + QString::number(param.initial), this);
+        QLabel *param_name_with_value = new QLabel(param.label + ": " + QString::number(static_cast<double>(param.initial), 'f', static_cast<int>(std::log10(scaleFactor))), this);
 
         // Connect the slider's valueChanged signal to update the label
-        connect(slider, &QSlider::valueChanged, this, [param_name, param](int value) {
-            param_name->setText(param.label + ": " + QString::number(value));
+        connect(slider, &QSlider::valueChanged, this, [param_name_with_value, param, scaleFactor, command_label, this](int value) mutable {
+            double realVal = static_cast<double>(value) / scaleFactor;
+            param_name_with_value->setText(param.label + ": " + QString::number(realVal, 'f', static_cast<int>(std::log10(scaleFactor))));
+            param.initial = realVal;
+            writeInYAML(command_label, param);
         });
-        param_name->setStyleSheet("QLabel {"
+        param_name_with_value->setStyleSheet("QLabel {"
                              "font-size: 16px;"
                              "color: #000000;"
                              "}");
-        spoilerContent->addWidget(param_name);
+        spoilerContent->addWidget(param_name_with_value);
 
         spoilerContent->addWidget(slider);
-
-        spoiler->setContentLayout(*spoilerContent);
-        connect(&spoiler->toggleButton, &QToolButton::clicked, this, [=](bool checked) {
-            if(checked == true){
-                currentSelectedLabel = command_label;
-                lastShownOutput.clear();
-            }
-            qDebug() << "Spoiler clicked:" << command_label;
-        });
     }
+    spoiler->setContentLayout(*spoilerContent);
+    connect(&spoiler->toggleButton, &QToolButton::clicked, this, [=](bool checked) {
+        if(checked == true){
+            currentSelectedLabel = command_label;
+            lastShownOutput.clear();
+        }
+        qDebug() << "Spoiler clicked:" << command_label;
+    });
+
 
     // Add spoiler to layout
     m_ui->runningScriptsList->addWidget(spoiler);
+}
+void ExecBox::writeInYAML(QString command, parameter param){
+    YAML::Node root;
+    std::ifstream fin("../../config.yaml");
+    if (fin.is_open()) {
+        // Parse the existing YAML file
+        root = YAML::Load(fin);
+        fin.close();
+    } else {
+        qWarning() << "config.yaml not found. Creating a new one.";
+    }
+    std::string std_command = command.toStdString();
+    std::string std_param_label = param.label.toStdString();
+    root[std_command][std_param_label] = param.initial;
+    YAML::Emitter emitter;
+    emitter << root;
+    std::ofstream fout("../../config.yaml");
+    fout << emitter.c_str();
+    fout.close();
+
+    qDebug()<<"YAML data written to config.yaml";
 }
