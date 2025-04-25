@@ -12,6 +12,7 @@
 #include <QDebug>
 #include <QCheckBox>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QDebug>
 #include <QTimer>
 #include <QListWidgetItem>

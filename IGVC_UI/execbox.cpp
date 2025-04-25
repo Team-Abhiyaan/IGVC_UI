@@ -53,6 +53,7 @@ ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui)
     updateTimer->start();
 }
 // this function executes the command without a terminal window.
+
 void ExecBox::StartSession(QProcess* process, const QString& cmd, const QString& label){
 
     QString fullCommand;
@@ -85,6 +86,7 @@ void ExecBox::StartSession(QProcess* process, const QString& cmd, const QString&
     createSpoiler(label, commandParameterMap[label]);
 
 }
+
 void ExecBox::StopSession(QProcess* process, const QString& label){
 
     //terminate the given process
@@ -212,6 +214,7 @@ void ExecBox::SetupUI(QCheckBox* checkbox){
 
     update();
 }
+
 void ExecBox::createSpoiler(const QString command_label, QVector<parameter> parameters){
     Spoiler *spoiler = new Spoiler(command_label);
     qDebug()<<spoiler<<sizeof(*spoiler);
@@ -236,7 +239,7 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
         slider->setValue(int(param.initial * scaleFactor));    // initial value
         slider->setTickPosition(QSlider::TicksBelow); // show ticks below the slider
         slider->setTickInterval(1);  // interval between ticks
-        slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
 
 
         // Create a label to display the slider value
@@ -269,7 +272,9 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
 
     // Add spoiler to layout
     m_ui->runningScriptsList->addWidget(spoiler);
+    m_ui->runningScriptsList->addStretch();
 }
+
 void ExecBox::writeInYAML(QString command, parameter param){
     YAML::Node root;
     std::ifstream fin("../../config.yaml");

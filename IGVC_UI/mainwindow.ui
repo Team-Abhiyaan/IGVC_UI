@@ -29,8 +29,17 @@
     </item>
     <item>
      <widget class="QScrollArea" name="scrollArea">
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
       <property name="widgetResizable">
        <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <widget class="QWidget" name="container">
        <property name="geometry">
@@ -51,17 +60,11 @@
         <string notr="true">background-color:white;
 </string>
        </property>
-       <widget class="QWidget" name="verticalLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>541</width>
-          <height>451</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="runningScriptsList"/>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <layout class="QVBoxLayout" name="runningScriptsList"/>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

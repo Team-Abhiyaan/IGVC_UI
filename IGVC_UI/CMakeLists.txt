@@ -21,15 +21,16 @@ set(PROJECT_SOURCES
         mainwindow.ui
         execbox.h
         execbox.cpp
+        spoiler.h
+        spoiler.cpp
+        parameter.h
+        parameter.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(IGVC_UI
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        spoiler.h spoiler.cpp
-        parameter.h
-        parameter.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET IGVC_UI APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
