@@ -18,11 +18,29 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
     toggleButton.setCheckable(true);
     toggleButton.setChecked(false);
 
-    //????
     headerLine.setFrameShape(QFrame::HLine);
     headerLine.setFrameShadow(QFrame::Sunken);
     headerLine.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-    headerLine.setVisible(false);
+    headerLine.setVisible(true);
+
+    // Add Play Button
+    playButton.setIcon(QIcon(":/icons/play.png")); // Use your play icon
+    playButton.setStyleSheet(
+        "QToolButton {"
+        " border: none;"
+        " padding: 4px;"
+        "}"
+        "QToolButton:hover {"
+        " background-color: #e0e0e0;"
+        "}"
+        );
+    playButton.setCursor(Qt::PointingHandCursor);
+    playButton.setVisible(true);
+    playButton.setIcon(QIcon(":/icons/play.png"));
+
+    qDebug() << "Icon exists:" << QFile::exists(":/icons/play.png");
+
+    playButton.setIconSize(QSize(16, 16));
 
     contentArea.setStyleSheet(
         "QScrollArea {"
@@ -49,9 +67,20 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
     mainLayout.setVerticalSpacing(0);
     mainLayout.setContentsMargins(0, 0, 0, 0);
     int row = 0;
-    mainLayout.addWidget(&toggleButton, row, 0, 1, 1, Qt::AlignLeft);
-    mainLayout.addWidget(&headerLine, row++, 2, 1, 1);
+
+    // a horizontal layout for the header row so that play button comes aligned
+    QHBoxLayout* headerLayout = new QHBoxLayout();
+    headerLayout->setContentsMargins(0, 0, 0, 0);
+    headerLayout->addWidget(&toggleButton, 0, Qt::AlignLeft);
+    headerLayout->addStretch(1); // This pushes the play button to the right
+    headerLayout->addWidget(&playButton, 0, Qt::AlignRight);
+
+    // Add the header layout and the rest to the main vertical layout
+    mainLayout.addLayout(headerLayout, row++, 0, 1, 3);
+    mainLayout.addWidget(&headerLine, row++, 0, 1, 3);
     mainLayout.addWidget(&contentArea, row, 0, 1, 3);
+
+
     setLayout(&mainLayout);
 
 

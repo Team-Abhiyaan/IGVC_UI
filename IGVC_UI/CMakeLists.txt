@@ -32,6 +32,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
+
+    qt_add_resources(IGVC_UI resources.qrc)
+
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET IGVC_UI APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
@@ -46,6 +49,7 @@ else()
     else()
         add_executable(IGVC_UI
             ${PROJECT_SOURCES}
+            resources.qrc
         )
     endif()
 endif()

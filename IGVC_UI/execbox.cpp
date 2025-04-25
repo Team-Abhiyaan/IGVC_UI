@@ -261,12 +261,13 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
         spoilerContent->addWidget(slider);
     }
     spoiler->setContentLayout(*spoilerContent);
-    connect(&spoiler->toggleButton, &QToolButton::clicked, this, [=](bool checked) {
-        if(checked == true){
-            currentSelectedLabel = command_label;
-            lastShownOutput.clear();
-        }
-        qDebug() << "Spoiler clicked:" << command_label;
+
+    connect(&spoiler->playButton, &QToolButton::clicked, this, [=]() {
+        currentSelectedLabel = command_label;
+        lastShownOutput.clear();
+        m_ui->TerminalDisplay->clear();
+        m_ui->TerminalDisplay->appendPlainText(ScriptOutputMap.value(currentSelectedLabel));
+        qDebug() << "Button clicked:" << command_label;
     });
 
 
