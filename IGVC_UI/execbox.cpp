@@ -183,14 +183,19 @@ void ExecBox::ReadJSON(){
 void ExecBox::ReadYAML(){
     try {
         YAML::Node config = YAML::LoadFile("../../config.yaml");
-        for(const auto& command : config){
+        YAML::Node parameters = config["parameters"];
+        for(const auto& command : parameters){
             QString command_label = QString::fromStdString(command.first.as<std::string>());
             qDebug()<<command_label;
-            for(const auto& param:command.second){
+
+            for(const auto& param : command.second){
                 QString param_label = QString::fromStdString(param.first.as<std::string>());
                 double initial_value = param.second.as<double>();
+                qDebug()<<"Got intial value";
+                double min = config["limits"][command_label.toStdString()][param_label.toStdString()]["min"].as<double>();
+                double max = config["limits"][command_label.toStdString()][param_label.toStdString()]["max"].as<double>();
                 qDebug()<<param_label<<initial_value;
-                commandParameterMap[command_label].append(parameter(param_label, 0, 100, initial_value));
+                commandParameterMap[command_label].append(parameter(param_label, min, max, initial_value));
             }
         }
 
@@ -232,12 +237,12 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
     for(auto& param: parameters){
         QSlider *slider = new QSlider(Qt::Horizontal, this);
         qDebug()<<param.label<<param.min<<param.max<<param.initial;
-        double scaleFactor = 100;
+        double scaleFactor = 1000; //how much decimal places u want to be visible, put here 10 power that value
         // Set the range of the slider
         slider->setMinimum(int(param.min * scaleFactor));   // minimum value
         slider->setMaximum(int(param.max * scaleFactor)); // maximum value
         slider->setValue(int(param.initial * scaleFactor));    // initial value
-        slider->setTickPosition(QSlider::TicksBelow); // show ticks below the slider
+        slider->setTickPosition(QSlider::NoTicks); // show ticks below the slider
         slider->setTickInterval(1);  // interval between ticks
         slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
 
@@ -277,8 +282,11 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
 }
 
 void ExecBox::writeInYAML(QString command, parameter param){
+    //Starts a YAML node
     YAML::Node root;
+    //Reads the YAML file in read only mode
     std::ifstream fin("../../config.yaml");
+
     if (fin.is_open()) {
         // Parse the existing YAML file
         root = YAML::Load(fin);
@@ -286,13 +294,112 @@ void ExecBox::writeInYAML(QString command, parameter param){
     } else {
         qWarning() << "config.yaml not found. Creating a new one.";
     }
+
+    // Variables to get the command label and parameter label in std::string
     std::string std_command = command.toStdString();
     std::string std_param_label = param.label.toStdString();
-    root[std_command][std_param_label] = param.initial;
+
+    //rounding parameter initial value
+    double rounded = std::round(param.initial * 1000.0) / 1000.0;
+    root["parameters"][std_command][std_param_label] = rounded;
+
+    //Storing the limits map in a YAML Node
+    YAML::Node limits = root["limits"];
+
+    // Emitter to write data into YAML
     YAML::Emitter emitter;
-    emitter << root;
+
+    // Begins Whole YAML
+    emitter << YAML::BeginMap;
+
+    // Begins Parameter Map
+    emitter<<YAML::Key<< "parameters"<<YAML::Value;
+
+    // Begins the nested map in parameters
+    emitter << YAML::BeginMap;
+
+    // Stores each command label and parameters in emitter
+    for (const auto& command : root["parameters"]) {
+
+        // Writes each command label and leaves the key for that label
+        emitter << YAML::Key << command.first.as<std::string>() << YAML::Value;
+        //In the key for each label begins a map
+        emitter << YAML::BeginMap;
+
+        //Stores the parameters under each command label
+        for (const auto& param : command.second) {
+            double value = param.second.as<double>();
+            std::ostringstream ss;
+            ss << std::fixed << std::setprecision(3) << value;
+
+            //For each parameter we starts a key value pair and adds it to emitter
+            emitter << YAML::Key << param.first.as<std::string>() << YAML::Value << ss.str();
+        }
+
+        // Ends the map for command label
+        emitter << YAML::EndMap;
+    }
+
+    //ends the parameter map
+    emitter << YAML::EndMap;
+
+    // begins the limits map with "limits" as key and leaves a blank value
+    emitter << YAML::Key << "limits" << YAML::Value;
+
+    // begins the value of "limits" as a map
+    emitter << YAML::BeginMap;
+
+    // Stores each value of commands in limits
+    for (const auto& command : limits) {
+
+        //begins each command label as key and leaves a blank value
+        emitter << YAML::Key << command.first.as<std::string>() << YAML::Value;
+
+        // begins the value of each command label as a map
+        emitter << YAML::BeginMap;
+
+        // stores parameters
+        for (const auto& param : command.second) {
+
+            // begins the parameter parameter label as a key and leaves a blank value
+            emitter << YAML::Key << param.first.as<std::string>() << YAML::Value;
+
+            //begins the value of parameter label as a map
+            emitter <<YAML::BeginMap;
+
+            // adds key value pairs of min and max in the map which is the value of each parameter label
+            double min = param.second["min"].as<double>();
+
+            std::ostringstream ss;
+
+            ss << std::fixed << std::setprecision(3) << min;
+            emitter << YAML::Key << "min" << YAML::Value << ss.str();
+            double max = param.second["max"].as<double>();
+
+            ss.str("");
+            ss.clear();
+
+            ss << std::fixed << std::setprecision(3) << max;
+            emitter << YAML::Key << "max" << YAML::Value << ss.str();
+
+            // ends the map with key as each parameter label
+            emitter << YAML::EndMap;
+        }
+
+        // ends the map with key as each command label
+        emitter << YAML::EndMap;
+    }
+
+    // ends the "limits" map
+    emitter << YAML::EndMap;
+
+    // opens the yaml file in write mode
     std::ofstream fout("../../config.yaml");
+
+    // convert the emitter to c string and writes into yaml
     fout << emitter.c_str();
+
+    // closes the yaml file
     fout.close();
 
     qDebug()<<"YAML data written to config.yaml";

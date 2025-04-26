@@ -24,7 +24,7 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
     headerLine.setVisible(true);
 
     // Add Play Button
-    playButton.setIcon(QIcon(":/icons/play.png")); // Use your play icon
+    playButton.setIcon(QIcon("../../icons/play.png")); // Use your play icon
     playButton.setStyleSheet(
         "QToolButton {"
         " border: none;"
@@ -36,7 +36,7 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
         );
     playButton.setCursor(Qt::PointingHandCursor);
     playButton.setVisible(true);
-    playButton.setIcon(QIcon(":/icons/play.png"));
+    playButton.setIcon(QIcon("../../icons/play.png"));
 
     qDebug() << "Icon exists:" << QFile::exists(":/icons/play.png");
 
