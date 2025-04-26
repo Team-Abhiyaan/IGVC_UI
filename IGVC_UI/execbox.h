@@ -21,6 +21,8 @@
 #include <yaml-cpp/yaml.h>
 #include <iostream>
 #include <fstream>
+#include <iomanip>
+
 
 
 #include <typeinfo> //remove it if not used
@@ -40,6 +42,8 @@ private:
     QString lastShownOutput;
     QString working_directory;
 
+    QMap<QString, double> lastParamValues;
+
 public:
     explicit ExecBox(QWidget *parent = nullptr, Ui::MainWindow* ui  = nullptr);
 
@@ -55,6 +59,7 @@ public:
     void SetupUI(QCheckBox* checkbox);
     void StartSession(QProcess* process, const QString& cmd, const QString& label);
     void StopSession(QProcess* process, const QString& label);
+    double getOtherParamValue(QString command_label, QString other_param_name);
     void createSpoiler(const QString command_label, QVector<parameter> parameters);
 };
 

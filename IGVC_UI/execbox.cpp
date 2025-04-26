@@ -242,21 +242,41 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
         slider->setMinimum(int(param.min * scaleFactor));   // minimum value
         slider->setMaximum(int(param.max * scaleFactor)); // maximum value
         slider->setValue(int(param.initial * scaleFactor));    // initial value
-        slider->setTickPosition(QSlider::NoTicks); // show ticks below the slider
-        slider->setTickInterval(1);  // interval between ticks
         slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+
+        QString fullParamName = command_label + "/" + param.label; // create unique key
+        lastParamValues[fullParamName] = param.initial;            // store the initial value
 
 
         // Create a label to display the slider value
         QLabel *param_name_with_value = new QLabel(param.label + ": " + QString::number(static_cast<double>(param.initial), 'f', static_cast<int>(std::log10(scaleFactor))), this);
 
         // Connect the slider's valueChanged signal to update the label
-        connect(slider, &QSlider::valueChanged, this, [param_name_with_value, param, scaleFactor, command_label, this](int value) mutable {
-            double realVal = static_cast<double>(value) / scaleFactor;
+        connect(slider, &QSlider::valueChanged, this, [=](int value) {
+            double realVal = static_cast<double>(value)/scaleFactor;
+            QString fullParamName = command_label + "/" + param.label;
+
+            if (command_label == "lane_detection")
+            {   double otherVal = getOtherParamValue(command_label, (param.label == "low") ? "high" : "low");
+
+                if ((param.label == "low" && realVal > otherVal) || (param.label == "high" && realVal < otherVal))
+                {   QSignalBlocker blocker(slider);
+                    slider->setValue(static_cast<int>(lastParamValues[fullParamName] * scaleFactor));
+                    return;}
+            }
+
             param_name_with_value->setText(param.label + ": " + QString::number(realVal, 'f', static_cast<int>(std::log10(scaleFactor))));
-            param.initial = realVal;
+
+            // Find and update the actual parameter in commandParameterMap
+            for (auto& p : commandParameterMap[command_label]) {
+                if (p.label == param.label)
+                {   p.initial = realVal; // Modify the original parameter
+                    break;}}
+
             writeInYAML(command_label, param);
+            lastParamValues[fullParamName] = realVal;
         });
+
         param_name_with_value->setStyleSheet("QLabel {"
                              "font-size: 16px;"
                              "color: #000000;"
@@ -280,6 +300,18 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
     m_ui->runningScriptsList->addWidget(spoiler);
     m_ui->runningScriptsList->addStretch();
 }
+
+double ExecBox::getOtherParamValue(QString command_label, QString other_param_name)
+{
+    for (const auto& p : commandParameterMap[command_label])
+    {   if (p.label == other_param_name)
+        {   return p.initial;}
+    }
+
+    qWarning() << "Warning: Param" << other_param_name << "not found under" << command_label;
+    return 0.0; // fallback default
+}
+
 
 void ExecBox::writeInYAML(QString command, parameter param){
     //Starts a YAML node
