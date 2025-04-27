@@ -6,20 +6,6 @@ ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui)
     //reading json file
     ReadJSON();
     ReadYAML();
-    // commandParameterMap["elecstack"].append(parameter("test" + QString("elecstack"), 5, 10, 7));
-    // commandParameterMap["robot_desc"].append(parameter("test" + QString("robot_desc"), 0, 5, 3));
-    // commandParameterMap["zed"].append(parameter("test" + QString("zed"), 5, 15, 10));
-    // commandParameterMap["lidar"].append(parameter("test" + QString("lidar"), 10, 20, 15));
-    // commandParameterMap["lidar_range_filter"].append(parameter("test" + QString("lidar_range_filter"), 0, 30, 15));
-    // commandParameterMap["lidar_angular_filter"].append(parameter("test" + QString("lidar_angular_filter"), 0, 10, 5));
-    // commandParameterMap["lane_detection"].append(parameter("test" + QString("lane_detection"), 1, 10, 6));
-    // commandParameterMap["pothole_detection"].append(parameter("test" + QString("pothole_detection"), 3, 12, 7));
-    // // commandParameterMap["nav"].append(parameter("test" + QString("nav"), 0, 5, 3));
-    // commandParameterMap["pathfinder"].append(parameter("test" + QString("pathfinder"), 10, 30, 20));
-    // commandParameterMap["gps"].append(parameter("test" + QString("gps"), 5, 15, 10));
-    // commandParameterMap["go"].append(parameter("test" + QString("go"), 1, 5, 3));
-
-
 
     //connecting each checkbox to their processes.
     for(int i = 0;i < checkBoxes.size(); ++i){
@@ -108,11 +94,6 @@ void ExecBox::StopSession(QProcess* process, const QString& label){
             if (spoiler!=nullptr) {
                 if(spoiler->toggleButton.text()==label){
                     m_ui->runningScriptsList->takeAt(i);
-                    // qDebug()<<widget<<sizeof(*widget);
-                    // delete widget;
-                    // qDebug()<<item<<sizeof(*widget);
-                    // delete item;
-                    // qDebug()<<spoiler<<sizeof(*spoiler);
                     delete spoiler;
                     break;
                 }
@@ -186,15 +167,12 @@ void ExecBox::ReadYAML(){
         YAML::Node parameters = config["parameters"];
         for(const auto& command : parameters){
             QString command_label = QString::fromStdString(command.first.as<std::string>());
-            qDebug()<<command_label;
 
             for(const auto& param : command.second){
                 QString param_label = QString::fromStdString(param.first.as<std::string>());
                 double initial_value = param.second.as<double>();
-                qDebug()<<"Got intial value";
                 double min = config["limits"][command_label.toStdString()][param_label.toStdString()]["min"].as<double>();
                 double max = config["limits"][command_label.toStdString()][param_label.toStdString()]["max"].as<double>();
-                qDebug()<<param_label<<initial_value;
                 commandParameterMap[command_label].append(parameter(param_label, min, max, initial_value));
             }
         }
@@ -222,7 +200,6 @@ void ExecBox::SetupUI(QCheckBox* checkbox){
 
 void ExecBox::createSpoiler(const QString command_label, QVector<parameter> parameters){
     Spoiler *spoiler = new Spoiler(command_label);
-    qDebug()<<spoiler<<sizeof(*spoiler);
 
     // Add content to the spoiler
     QVBoxLayout *spoilerContent = new QVBoxLayout();
@@ -232,11 +209,8 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
         spoilerContent->addWidget(emptyLabel);
     }
 
-    qDebug()<<spoilerContent<<sizeof(spoilerContent);
-
     for(auto& param: parameters){
         QSlider *slider = new QSlider(Qt::Horizontal, this);
-        qDebug()<<param.label<<param.min<<param.max<<param.initial;
         double scaleFactor = 1000; //how much decimal places u want to be visible, put here 10 power that value
         // Set the range of the slider
         slider->setMinimum(int(param.min * scaleFactor));   // minimum value
@@ -252,7 +226,9 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
         QLabel *param_name_with_value = new QLabel(param.label + ": " + QString::number(static_cast<double>(param.initial), 'f', static_cast<int>(std::log10(scaleFactor))), this);
 
         // Connect the slider's valueChanged signal to update the label
-        connect(slider, &QSlider::valueChanged, this, [=](int value) {
+
+        // connect(slider, &QSlider::valueChanged, this, [param_name_with_value, param, scaleFactor, command_label, this, &slider](int value) mutable{
+        connect(slider, &QSlider::valueChanged, this, [=](int value) mutable{
             double realVal = static_cast<double>(value)/scaleFactor;
             QString fullParamName = command_label + "/" + param.label;
 
@@ -267,14 +243,26 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
 
             param_name_with_value->setText(param.label + ": " + QString::number(realVal, 'f', static_cast<int>(std::log10(scaleFactor))));
 
-            // Find and update the actual parameter in commandParameterMap
             for (auto& p : commandParameterMap[command_label]) {
                 if (p.label == param.label)
                 {   p.initial = realVal; // Modify the original parameter
-                    break;}}
+                    break;
+                }
+            }
 
+// Here a copy of param it created inside lambda and it's value is being changed. And for writeInYAML that copy is being passed
+            param.initial = realVal;
             writeInYAML(command_label, param);
             lastParamValues[fullParamName] = realVal;
+
+            // Uncomment this code snippet to show the data in commandParameterMap in terminal
+/*
+            for(auto it = commandParameterMap.begin();it!= commandParameterMap.end();it++){
+                for(auto param: it.value()){
+                    qDebug()<<param.label<<param.initial;
+                }
+            }
+*/
         });
 
         param_name_with_value->setStyleSheet("QLabel {"

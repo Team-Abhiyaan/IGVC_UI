@@ -1,17 +1,17 @@
 parameters:
   zed:
-    x: 2.777
-    y: 0.932
-    z: 3.000
-    r: 5.920
-    p: 3.440
+    x: 1.743
+    y: 1.449
+    z: 1.541
+    r: 4.330
+    p: 4.245
     y: 1.000
   lane_detection:
-    low: 245.952
-    high: 188.371
-    z: 0.821
-    min_pts: 0.243
-    eps: 0.615
+    low: 122.565
+    high: 148.065
+    z: 0.513
+    min_pts: 0.497
+    eps: 0.174
 limits:
   zed:
     x:
