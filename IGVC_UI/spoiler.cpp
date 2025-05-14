@@ -2,6 +2,7 @@
 #include "spoiler.h"
 
 Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *parent) : QWidget(parent), animationDuration(animationDuration) {
+
     toggleButton.setStyleSheet(
         "QToolButton {"
         " font-size: 18px;"
@@ -108,6 +109,9 @@ void Spoiler::setContentLayout(QLayout & contentLayout) {
     delete contentArea.layout();
     contentArea.setLayout(&contentLayout);
 
+    contentLayout.invalidate();
+    contentArea.updateGeometry();
+
     const auto collapsedHeight = sizeHint().height() - contentArea.maximumHeight();
     auto contentHeight = contentLayout.sizeHint().height();
 
@@ -122,4 +126,8 @@ void Spoiler::setContentLayout(QLayout & contentLayout) {
     contentAnimation->setDuration(animationDuration);
     contentAnimation->setStartValue(0);
     contentAnimation->setEndValue(contentHeight);
+
+    this->setMinimumHeight(collapsedHeight);
+    this->setMaximumHeight(collapsedHeight);
+    this->updateGeometry();
 }

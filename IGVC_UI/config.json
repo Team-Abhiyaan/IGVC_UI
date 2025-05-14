@@ -34,7 +34,7 @@
         },
         {
             "command": "ros2 launch sensor_fusion fusion.launch.py",
-            "label": "nav"
+            "label": "nav2"
         },
         {
             "command": "ros2 run path_finder find_path",
@@ -50,9 +50,12 @@
         }
     ],
     "defaults": [
-        "nav",
-        "gps",
-        "go"
+        "elecstack",
+        "robot_desc",
+        "zed",
+        "lidar",
+        "lane_detection",
+        "nav"
     ],
     "working_directory": "/home/"
 }

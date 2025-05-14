@@ -22,7 +22,6 @@ ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui)
         });
     }
 
-    select_default->click();
     updateTimer= new QTimer(this);
     updateTimer->setInterval(500);
 
@@ -208,6 +207,7 @@ void ExecBox::SetupUI(QCheckBox* checkbox){
         "QCheckBox:hover { color: blue; font-weight: bold; }"
         );
     m_ui->buttons->addWidget(checkbox);
+    m_ui->buttons->setAlignment(Qt::AlignTop);
 
     update();
 }
@@ -299,8 +299,8 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
 
 
     // Add spoiler to layout
+    m_ui->runningScriptsList->setAlignment(Qt::AlignTop);
     m_ui->runningScriptsList->addWidget(spoiler);
-    m_ui->runningScriptsList->addStretch();
 }
 
 double ExecBox::getOtherParamValue(QString command_label, QString other_param_name)

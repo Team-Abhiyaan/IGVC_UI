@@ -76,8 +76,7 @@
         </sizepolicy>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color:white;
-</string>
+        <string notr="true">background-color:white;</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
