@@ -209,6 +209,13 @@ void ExecBox::SetupUI(QCheckBox* checkbox){
     m_ui->buttons->addWidget(checkbox);
     m_ui->buttons->setAlignment(Qt::AlignTop);
 
+    QPixmap pixmap("../../assets/abhiyaan_logo.png");
+
+    m_ui->LogoArea->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    m_ui->LogoArea->setPixmap(
+        pixmap.scaled(205, 70, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+        );
+
     update();
 }
 
