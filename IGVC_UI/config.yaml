@@ -1,13 +1,13 @@
 parameters:
   zed:
-    x: 1.743
+    x: 0.600
     y: 1.449
     z: 1.541
     r: 4.330
     p: 4.245
     y: 1.000
   lane_detection:
-    low: 122.565
+    low: 83.903
     high: 148.065
     z: 0.513
     min_pts: 0.497

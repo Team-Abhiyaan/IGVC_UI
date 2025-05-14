@@ -38,7 +38,7 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
     playButton.setVisible(true);
     playButton.setIcon(QIcon("../../icons/play.png"));
 
-    qDebug() << "Icon exists:" << QFile::exists(":/icons/play.png");
+    qDebug() << "Icon exists:" << QFile::exists("../../icons/play.png");
 
     playButton.setIconSize(QSize(16, 16));
 

@@ -22,6 +22,7 @@ ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui)
         });
     }
 
+    select_default->click();
     updateTimer= new QTimer(this);
     updateTimer->setInterval(500);
 
@@ -153,12 +154,26 @@ void ExecBox::ReadJSON(){
             // UI is updated and command and checkbox are added to their corresponding list
             checkBoxes.append(checkbox);
             commands.append(command);
+            label_checkbox_map[label]=checkbox;
 
             SetupUI(checkbox);
             CheckBoxProcessMap[checkbox] = nullptr;
             checkbox = nullptr;
         }
+
+        //reading defaults in the json file and adding them to defaults list
+        QJsonArray defaults_json_array = rootObj["defaults"].toArray();
+        for(int i = 0; i < defaults_json_array.size(); i++){
+            QString current_default = defaults_json_array.at(i).toString();
+            if(label_checkbox_map.contains(current_default)){
+                defaults.append(label_checkbox_map[current_default]);
+            }
+            else{
+                qDebug()<<current_default<<"not found";
+            }
+        }
     }
+    add_default_buttons();
 }
 
 void ExecBox::ReadYAML(){
@@ -193,7 +208,6 @@ void ExecBox::SetupUI(QCheckBox* checkbox){
         "QCheckBox:hover { color: blue; font-weight: bold; }"
         );
     m_ui->buttons->addWidget(checkbox);
-
 
     update();
 }
@@ -423,4 +437,105 @@ void ExecBox::writeInYAML(QString command, parameter param){
     fout.close();
 
     qDebug()<<"YAML data written to config.yaml";
+}
+void ExecBox::add_default_buttons(){
+
+    m_ui->buttons->addSpacing(20);
+
+    set_default = new QPushButton(this);
+    select_default = new QPushButton(this);
+
+    set_default->setText("set default");
+    select_default->setText("select default");
+
+    set_default->setStyleSheet(R"(
+        QPushButton {
+            background-color: #0078D7;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        QPushButton:hover {
+            background-color: #005A9E;
+        }
+        QPushButton:pressed {
+            background-color: #004578;
+        }
+    )");
+
+    select_default->setStyleSheet(R"(
+        QPushButton {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        QPushButton:hover {
+            background-color: #218838;
+        }
+        QPushButton:pressed {
+            background-color: #1e7e34;
+        }
+    )");
+
+    QHBoxLayout* default_layout = new QHBoxLayout;
+
+    default_layout->addWidget(set_default);
+    default_layout->addWidget(select_default);
+
+    m_ui->buttons->addLayout(default_layout);
+
+    connect(set_default, &QPushButton::clicked, this, [this]() {
+        defaults.clear();
+        for(auto it = checkBoxes.begin(); it < checkBoxes.end(); it++){
+            if((*it)->isChecked()){
+                defaults.push_back(*it);
+            }
+        }
+        QFile file("../../config.json");
+
+        if (file.open(QIODevice::ReadWrite)) {
+
+            // Read the existing content
+            QByteArray data = file.readAll();
+            QJsonDocument doc = QJsonDocument::fromJson(data);
+
+            if (doc.isObject()) {
+                QJsonObject jsonObject = doc.object();
+
+                list_of_labels_of_defaults.clear();
+
+                // Add the labels of the selected checkboxes to the "list_of_labels_of_defaults" list
+                for (int i = 0; i < defaults.size(); ++i) {
+                    if (defaults[i]->isChecked()) {
+                        list_of_labels_of_defaults.append(defaults[i]->text());
+                    }
+                }
+
+                // Set the "defaults" field with the selected command labels
+                jsonObject["defaults"] = QJsonArray::fromStringList(list_of_labels_of_defaults);
+
+                // Write the updated JSON back to the file
+                file.resize(0);  // Clear the existing content of the file
+                file.write(QJsonDocument(jsonObject).toJson());
+                file.close();
+
+                qDebug() << "Defaults updated successfully!";
+            } else {
+                qDebug() << "Invalid JSON format!";
+            }
+        } else {
+            qDebug() << "Error opening file!";
+        }
+    });
+    connect(select_default, &QPushButton::clicked, this, [this]() {
+        for(auto it = defaults.begin(); it < defaults.end(); it++){
+            (*it)->setChecked(true);
+        }
+    });
+
 }

@@ -18,6 +18,7 @@
 #include <QListWidgetItem>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QPushButton>
 #include <yaml-cpp/yaml.h>
 #include <iostream>
 #include <fstream>
@@ -49,13 +50,17 @@ public:
 
     QMap <QCheckBox*, QProcess*> CheckBoxProcessMap;
     QVector<QCheckBox* > checkBoxes;
+    QMap <QString, QCheckBox*> label_checkbox_map;
     QVector<QString> commands;
-
     QMap<QString, QVector<parameter>> commandParameterMap;
+    QPushButton *set_default, *select_default;
+    QVector<QCheckBox*> defaults;
+    QStringList list_of_labels_of_defaults;
 
     void ReadJSON();
     void ReadYAML();
     void writeInYAML(QString command, parameter param);
+    void add_default_buttons();
     void SetupUI(QCheckBox* checkbox);
     void StartSession(QProcess* process, const QString& cmd, const QString& label);
     void StopSession(QProcess* process, const QString& label);
