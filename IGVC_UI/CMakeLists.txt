@@ -31,6 +31,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(IGVC_UI
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        resources.qrc
+
     )
 
     qt_add_resources(IGVC_UI resources.qrc)
@@ -81,7 +83,3 @@ install(TARGETS IGVC_UI
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(IGVC_UI)
 endif()
-configure_file(${CMAKE_SOURCE_DIR}/config.json ${CMAKE_BINARY_DIR}/config.json COPYONLY)
-configure_file(${CMAKE_SOURCE_DIR}/config.yaml ${CMAKE_BINARY_DIR}/config.yaml COPYONLY)
-
-

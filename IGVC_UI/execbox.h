@@ -20,6 +20,7 @@
 #include <QDebug>
 #include <QPushButton>
 #include <yaml-cpp/yaml.h>
+#include <QDir>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -42,6 +43,7 @@ private:
     QString currentSelectedLabel;
     QString lastShownOutput;
     QString working_directory;
+    QString JSONpath, YAMLpath;
 
     QMap<QString, double> lastParamValues;
 

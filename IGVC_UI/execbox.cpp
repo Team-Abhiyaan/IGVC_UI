@@ -3,6 +3,8 @@
 
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
 
+    JSONpath = QDir::homePath() + "/.config/config.json";
+    YAMLpath = QDir::homePath() + "/.config/config.yaml";
     //reading json file
     ReadJSON();
     ReadYAML();
@@ -109,7 +111,37 @@ void ExecBox::StopSession(QProcess* process, const QString& label){
 // this function reads the json file
 void ExecBox::ReadJSON(){
 
-    QFile File("config.json");
+    QFile File(JSONpath);
+
+    if (!File.exists()) {
+        qDebug() << "config.json not found, creating default file...";
+
+        QJsonObject defaultObject;
+        defaultObject["working_directory"] = "";
+
+        QJsonArray commandArray;
+        QJsonObject commandEntry;
+        commandEntry["command"] = "";
+        commandEntry["label"] = "";
+        commandArray.append(commandEntry);
+        defaultObject["commands"] = commandArray;
+
+        QJsonArray defaultsArray;
+        defaultsArray.append("");
+        defaultObject["defaults"] = defaultsArray;
+
+        QJsonDocument doc(defaultObject);
+
+        if (File.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            File.write(doc.toJson(QJsonDocument::Indented));
+            File.close();
+            qDebug() << "Created default JSON file at:"<< JSONpath;
+        } else {
+            qDebug() << "Failed to create config.json.";
+            return;
+        }
+    }
+
     QByteArray Bytes;
     if(File.open(QIODevice::ReadOnly | QIODevice::Text)){
         Bytes = File.readAll();
@@ -176,8 +208,23 @@ void ExecBox::ReadJSON(){
 }
 
 void ExecBox::ReadYAML(){
+
+    if (!QFile::exists(YAMLpath)) {
+        // Create a default YAML template
+        QFile file(YAMLpath);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream out(&file);
+            out << "parameters:\n";
+            out << "limits:\n";
+            file.close();
+            qDebug() << "Created default YAML file at:" << YAMLpath;
+        } else {
+            qCritical() << "Could not create default YAML file at:" << YAMLpath;
+            return;
+        }
+    }
     try {
-        YAML::Node config = YAML::LoadFile("../../config.yaml");
+        YAML::Node config = YAML::LoadFile(YAMLpath.toStdString());
         YAML::Node parameters = config["parameters"];
         for(const auto& command : parameters){
             QString command_label = QString::fromStdString(command.first.as<std::string>());
@@ -209,7 +256,7 @@ void ExecBox::SetupUI(QCheckBox* checkbox){
     m_ui->buttons->addWidget(checkbox);
     m_ui->buttons->setAlignment(Qt::AlignTop);
 
-    QPixmap pixmap("../../assets/abhiyaan_logo.png");
+    QPixmap pixmap(":/assets/abhiyaan_logo.png");
 
     m_ui->LogoArea->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     m_ui->LogoArea->setPixmap(
@@ -326,7 +373,7 @@ void ExecBox::writeInYAML(QString command, parameter param){
     //Starts a YAML node
     YAML::Node root;
     //Reads the YAML file in read only mode
-    std::ifstream fin("../../config.yaml");
+    std::ifstream fin(YAMLpath.toStdString());
 
     if (fin.is_open()) {
         // Parse the existing YAML file
@@ -435,7 +482,7 @@ void ExecBox::writeInYAML(QString command, parameter param){
     emitter << YAML::EndMap;
 
     // opens the yaml file in write mode
-    std::ofstream fout("../../config.yaml");
+    std::ofstream fout(YAMLpath.toStdString());
 
     // convert the emitter to c string and writes into yaml
     fout << emitter.c_str();
@@ -503,7 +550,7 @@ void ExecBox::add_default_buttons(){
                 defaults.push_back(*it);
             }
         }
-        QFile file("../../config.json");
+        QFile file(QDir::homePath() + "/.config/config.json");
 
         if (file.open(QIODevice::ReadWrite)) {
 
@@ -540,6 +587,9 @@ void ExecBox::add_default_buttons(){
         }
     });
     connect(select_default, &QPushButton::clicked, this, [this]() {
+        for(auto it = checkBoxes.begin(); it < checkBoxes.end(); it++){
+            (*it)->setChecked(false);
+        }
         for(auto it = defaults.begin(); it < defaults.end(); it++){
             (*it)->setChecked(true);
         }

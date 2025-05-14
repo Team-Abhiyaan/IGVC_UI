@@ -50,10 +50,8 @@
         }
     ],
     "defaults": [
-        "zed",
-        "lidar_angular_filter",
-        "lane_detection",
-        "nav2"
+        "elecstack",
+        "robot_desc"
     ],
     "working_directory": "/home/"
 }

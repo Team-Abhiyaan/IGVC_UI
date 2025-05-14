@@ -1,5 +1,6 @@
 <RCC>
-  <qresource>
-    <file>icons/play.png</file>
-  </qresource>
+    <qresource prefix="/">
+        <file>assets/abhiyaan_logo.png</file>
+        <file>assets/play.png</file>
+    </qresource>
 </RCC>
