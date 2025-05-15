@@ -9,7 +9,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     setStyleSheet("background-color: #ffffff;");
-    setWindowTitle("IGVC UI");
     qDebug()<<"Started";
     //execbox (short for execution box) where every logic is initialized
     execbox = new ExecBox(this, ui);

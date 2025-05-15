@@ -17,7 +17,11 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>IGVC UI</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/assets/abhiyaan_logo.png</normaloff>:/assets/abhiyaan_logo.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color:white;</string>
@@ -140,6 +144,8 @@ font-size: 12pt;
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
