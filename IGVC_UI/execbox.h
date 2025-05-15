@@ -27,7 +27,7 @@
 
 
 
-#include <typeinfo> //remove it if not used
+//#include <typeinfo> //remove it if not used
 
 #include "parameter.h"
 #include "./ui_mainwindow.h"
@@ -54,20 +54,20 @@ public:
     QVector<QCheckBox* > checkBoxes;
     QMap <QString, QCheckBox*> label_checkbox_map;
     QVector<QString> commands;
-    QMap<QString, QVector<parameter>> commandParameterMap;
+    QMap<QString, QVector<Parameter>> commandParameterMap;
     QPushButton *set_default, *select_default;
     QVector<QCheckBox*> defaults;
     QStringList list_of_labels_of_defaults;
 
     void ReadJSON();
     void ReadYAML();
-    void writeInYAML(QString command, parameter param);
+    void writeInYAML(QString command, Parameter param);
     void add_default_buttons();
     void SetupUI(QCheckBox* checkbox);
     void StartSession(QProcess* process, const QString& cmd, const QString& label);
     void StopSession(QProcess* process, const QString& label);
     double getOtherParamValue(QString command_label, QString other_param_name);
-    void createSpoiler(const QString command_label, QVector<parameter> parameters);
+    void createSpoiler(const QString command_label, QVector<Parameter> parameters);
 };
 
 #endif // EXECBOX_H

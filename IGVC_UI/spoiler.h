@@ -20,7 +20,7 @@ private:
     int animationDuration{300};
 public:
     QToolButton playButton;
-    explicit Spoiler(const QString & title = "", const int animationDuration = 300, QWidget *parent = 0);
+    explicit Spoiler(const QString & title = "", const int animationDuration = 300, QWidget *parent = nullptr);
     void setContentLayout(QLayout & contentLayout);
     QToolButton toggleButton;
 };

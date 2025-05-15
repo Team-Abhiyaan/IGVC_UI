@@ -3,8 +3,10 @@
 
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
 
+    //path to JSON file and YAML file
     JSONpath = QDir::homePath() + "/.config/config.json";
     YAMLpath = QDir::homePath() + "/.config/config.yaml";
+
     //reading json file
     ReadJSON();
     ReadYAML();
@@ -24,6 +26,7 @@ ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui)
         });
     }
 
+    //timer to update terminal display
     updateTimer= new QTimer(this);
     updateTimer->setInterval(500);
 
@@ -70,7 +73,7 @@ void ExecBox::StartSession(QProcess* process, const QString& cmd, const QString&
         ScriptOutputMap[label] += errorOutput;
     });
 
-
+    //to create a spoiler when the process starts
     createSpoiler(label, commandParameterMap[label]);
 
 }
@@ -104,8 +107,9 @@ void ExecBox::StopSession(QProcess* process, const QString& label){
     }
     ScriptOutputMap.remove(label);
     update();
-    // qobject_cast<Spoiler*>(m_ui->runningScriptsList->widget())
 
+    //The spoiler taken from the running list should be converted to this type to do anything on it
+    // qobject_cast<Spoiler*>(m_ui->runningScriptsList->widget())
 }
 
 // this function reads the json file
@@ -113,6 +117,7 @@ void ExecBox::ReadJSON(){
 
     QFile File(JSONpath);
 
+    //if there is no JSON file found in the JSONpath, the programme creates a default one
     if (!File.exists()) {
         qDebug() << "config.json not found, creating default file...";
 
@@ -142,11 +147,15 @@ void ExecBox::ReadJSON(){
         }
     }
 
+    //Reads the JSON file
     QByteArray Bytes;
     if(File.open(QIODevice::ReadOnly | QIODevice::Text)){
+
+        //Extract the JSON data to ByteArray
         Bytes = File.readAll();
         File.close();
 
+        //convert the ByteArray to JsonDocument and check for errors
         QJsonParseError JsonError;
         QJsonDocument Document =  QJsonDocument::fromJson(Bytes, &JsonError);
         if(JsonError.error != QJsonParseError::NoError){
@@ -161,8 +170,10 @@ void ExecBox::ReadJSON(){
             return;
         }
 
+        //Convert the JSONDocument to JsonObject
         QJsonObject rootObj = Document.object();
 
+        //Extract working directory
         working_directory = rootObj["working_directory"].toString();
         qDebug()<<"Current working directory:"<<working_directory;
 
@@ -171,6 +182,7 @@ void ExecBox::ReadJSON(){
             return;
         }
 
+        //Extract commands array
         QJsonArray array = rootObj["commands"].toArray();
 
         QCheckBox* checkbox = nullptr;
@@ -209,6 +221,7 @@ void ExecBox::ReadJSON(){
 
 void ExecBox::ReadYAML(){
 
+    //If  no YAML file found in the YAMLpath, the programme creates a default one
     if (!QFile::exists(YAMLpath)) {
         // Create a default YAML template
         QFile file(YAMLpath);
@@ -223,6 +236,8 @@ void ExecBox::ReadYAML(){
             return;
         }
     }
+
+    //reading the YAML file
     try {
         YAML::Node config = YAML::LoadFile(YAMLpath.toStdString());
         YAML::Node parameters = config["parameters"];
@@ -234,7 +249,7 @@ void ExecBox::ReadYAML(){
                 double initial_value = param.second.as<double>();
                 double min = config["limits"][command_label.toStdString()][param_label.toStdString()]["min"].as<double>();
                 double max = config["limits"][command_label.toStdString()][param_label.toStdString()]["max"].as<double>();
-                commandParameterMap[command_label].append(parameter(param_label, min, max, initial_value));
+                commandParameterMap[command_label].append(Parameter(param_label, min, max, initial_value));
             }
         }
 
@@ -266,11 +281,11 @@ void ExecBox::SetupUI(QCheckBox* checkbox){
     update();
 }
 
-void ExecBox::createSpoiler(const QString command_label, QVector<parameter> parameters){
-    Spoiler *spoiler = new Spoiler(command_label);
+void ExecBox::createSpoiler(const QString command_label, QVector<Parameter> parameters){
+    Spoiler *spoiler = new Spoiler(command_label, 300, this);
 
     // Add content to the spoiler
-    QVBoxLayout *spoilerContent = new QVBoxLayout();
+    QVBoxLayout *spoilerContent = new QVBoxLayout(this);
     if (parameters.isEmpty()) {
         QLabel *emptyLabel = new QLabel("No parameters", this);
         emptyLabel->setStyleSheet("font-style: italic; color: black;");
@@ -280,6 +295,7 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
     for(auto& param: parameters){
         QSlider *slider = new QSlider(Qt::Horizontal, this);
         double scaleFactor = 1000; //how much decimal places u want to be visible, put here 10 power that value
+
         // Set the range of the slider
         slider->setMinimum(int(param.min * scaleFactor));   // minimum value
         slider->setMaximum(int(param.max * scaleFactor)); // maximum value
@@ -295,7 +311,7 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
 
         // Connect the slider's valueChanged signal to update the label
 
-        // connect(slider, &QSlider::valueChanged, this, [param_name_with_value, param, scaleFactor, command_label, this, &slider](int value) mutable{
+        // connect(slider, &QSlider::valueChanged, this, [param_name_with_value, param, scaleFactor, command_label, this, &slider](int value) mutable{  //This line also works
         connect(slider, &QSlider::valueChanged, this, [=](int value) mutable{
             double realVal = static_cast<double>(value)/scaleFactor;
             QString fullParamName = command_label + "/" + param.label;
@@ -348,7 +364,7 @@ void ExecBox::createSpoiler(const QString command_label, QVector<parameter> para
         lastShownOutput.clear();
         m_ui->TerminalDisplay->clear();
         m_ui->TerminalDisplay->appendPlainText(ScriptOutputMap.value(currentSelectedLabel));
-        qDebug() << "Button clicked:" << command_label;
+        // qDebug() << "Button clicked:" << command_label;
     });
 
 
@@ -369,13 +385,16 @@ double ExecBox::getOtherParamValue(QString command_label, QString other_param_na
 }
 
 
-void ExecBox::writeInYAML(QString command, parameter param){
+void ExecBox::writeInYAML(QString command, Parameter param){
+
     //Starts a YAML node
     YAML::Node root;
+
     //Reads the YAML file in read only mode
     std::ifstream fin(YAMLpath.toStdString());
 
     if (fin.is_open()) {
+
         // Parse the existing YAML file
         root = YAML::Load(fin);
         fin.close();
@@ -490,7 +509,7 @@ void ExecBox::writeInYAML(QString command, parameter param){
     // closes the yaml file
     fout.close();
 
-    qDebug()<<"YAML data written to config.yaml";
+    // qDebug()<<"YAML data written to config.yaml";
 }
 void ExecBox::add_default_buttons(){
 
@@ -543,6 +562,7 @@ void ExecBox::add_default_buttons(){
 
     m_ui->buttons->addLayout(default_layout);
 
+    //When set default is clicked, the defaults list is cleared and updated with new ones.
     connect(set_default, &QPushButton::clicked, this, [this]() {
         defaults.clear();
         for(auto it = checkBoxes.begin(); it < checkBoxes.end(); it++){
@@ -550,7 +570,7 @@ void ExecBox::add_default_buttons(){
                 defaults.push_back(*it);
             }
         }
-        QFile file(QDir::homePath() + "/.config/config.json");
+        QFile file(JSONpath);
 
         if (file.open(QIODevice::ReadWrite)) {
 
@@ -586,6 +606,8 @@ void ExecBox::add_default_buttons(){
             qDebug() << "Error opening file!";
         }
     });
+
+    //When select default is clicked, all the current checkboxes are unchecked and default ones are checked
     connect(select_default, &QPushButton::clicked, this, [this]() {
         for(auto it = checkBoxes.begin(); it < checkBoxes.end(); it++){
             (*it)->setChecked(false);
@@ -594,5 +616,4 @@ void ExecBox::add_default_buttons(){
             (*it)->setChecked(true);
         }
     });
-
 }

@@ -39,7 +39,7 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
     playButton.setVisible(true);
     playButton.setIcon(QIcon(":/assets/play.png"));
 
-    qDebug() << "Icon exists:" << QFile::exists(":/assets/play.png");
+    // qDebug() << "Icon exists:" << QFile::exists(":/assets/play.png");
 
     playButton.setIconSize(QSize(16, 16));
 
@@ -61,7 +61,7 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
     // let the entire widget grow and shrink with its content
     toggleAnimation.addAnimation(new QPropertyAnimation(this, "minimumHeight"));
     toggleAnimation.addAnimation(new QPropertyAnimation(this, "maximumHeight"));
-    toggleAnimation.addAnimation(new QPropertyAnimation(&contentArea, "maximumHeight"));
+    toggleAnimation.addAnimation(new QPropertyAnimation(&contentArea, "maximumHeight",this));
 
 
     // don't waste space
