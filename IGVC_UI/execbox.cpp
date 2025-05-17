@@ -1,11 +1,27 @@
 #include "execbox.h"
 #include "spoiler.h"
 
+void ExecBox::createConfigDir(QString configDirPath)
+{
+    //create this directory if it does not exists
+    QDir configDir(configDirPath);
+    if (!configDir.exists()) {
+        bool created = configDir.mkpath(".");  // create all missing parent dirs too
+        if (!created) {
+            qDebug() << "Failed to create config directory:" << configDirPath;
+        }
+    }
+}
+
 ExecBox::ExecBox(QWidget *parent,Ui::MainWindow* ui) : QWidget(parent), m_ui(ui) {
 
-    //path to JSON file and YAML file
-    JSONpath = QDir::homePath() + "/.config/config.json";
-    YAMLpath = QDir::homePath() + "/.config/config.yaml";
+    QString configDirPath = QDir::homePath() + "/.config/config_igvc_ui/";
+
+    createConfigDir(configDirPath);
+
+    // Set the full paths to your config files inside that directory
+    JSONpath = configDirPath + "config.json";
+    YAMLpath = configDirPath + "config.yaml";
 
     //reading json file
     ReadJSON();
@@ -384,7 +400,6 @@ double ExecBox::getOtherParamValue(QString command_label, QString other_param_na
     return 0.0; // fallback default
 }
 
-
 void ExecBox::writeInYAML(QString command, Parameter param){
 
     //Starts a YAML node
@@ -511,6 +526,7 @@ void ExecBox::writeInYAML(QString command, Parameter param){
 
     // qDebug()<<"YAML data written to config.yaml";
 }
+
 void ExecBox::add_default_buttons(){
 
     m_ui->buttons->addSpacing(20);

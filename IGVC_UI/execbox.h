@@ -15,6 +15,7 @@
 #include <QScrollBar>
 #include <QDebug>
 #include <QTimer>
+#include <QSaveFile>
 #include <QListWidgetItem>
 #include <QCoreApplication>
 #include <QDebug>
@@ -59,6 +60,7 @@ public:
     QVector<QCheckBox*> defaults;
     QStringList list_of_labels_of_defaults;
 
+    void createConfigDir(QString configDirPath);
     void ReadJSON();
     void ReadYAML();
     void writeInYAML(QString command, Parameter param);
