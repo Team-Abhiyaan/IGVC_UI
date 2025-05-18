@@ -15,7 +15,6 @@
 #include <QScrollBar>
 #include <QDebug>
 #include <QTimer>
-#include <QSaveFile>
 #include <QListWidgetItem>
 #include <QCoreApplication>
 #include <QDebug>
