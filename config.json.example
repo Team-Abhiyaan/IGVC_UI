@@ -1,20 +1,20 @@
 {
     "commands": [
         {
-            "command": "ros2 launch elecstack elec_launch.py",
-            "label": "elecstack"
+            "command": "cd ~/Desktop/igvc-sim/; source yolovenv/bin/activate; source install/setup.bash; ros2 run object_detection object_data_node.py",
+            "label": "obstacle_detection"
         },
         {
-            "command": "echo 5",
-            "label": "robot_desc"
+            "command": "cd ~/Desktop/igvc-sim/; source install/setup.bash; ros2 launch igvc spawn_robot.launch.py",
+            "label": "launch_gazebo"
         },
         {
-            "command": "sudo -E env bash -c 'source /opt/ros/humble/setup.bash; ros2 launch zed_wrapper zed_camera.launch.py camera_model:=zed2i publish_tf:=false publish_map_tf:=false'",
-            "label": "zed"
+            "command": "cd ~/Desktop/igvc-sim/; source install/setup.bash; python3 src/navigation/navigation/lane_curvefitting.py",
+            "label": "lane_curvefitting"
         },
         {
-            "command": "ros2 launch sllidar_ros2 sllidar_a2m12_launch.py",
-            "label": "lidar"
+            "command": "cd ~/Desktop/igvc-sim/; source install/setup.bash; python3 src/costmap/costmap/costmap.py",
+            "label": "costmap"
         },
         {
             "command": "ros2 launch laser_filters range_filter_example.launch.py",
@@ -50,8 +50,7 @@
         }
     ],
     "defaults": [
-        "elecstack",
-        "robot_desc"
+        "launch_gazebo"
     ],
     "working_directory": "/home/"
 }

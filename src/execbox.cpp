@@ -66,10 +66,10 @@ void ExecBox::StartSession(QProcess* process, const QString& cmd, const QString&
     QString fullCommand;
 
     // Executes both sourcing ros2 and given command execution
-    if (cmd.contains("source") || cmd.contains("sudo"))
-    {   fullCommand = cmd;}
-    else
-    {   fullCommand = "source /opt/ros/jazzy/setup.bash && " + cmd;}
+    fullCommand =
+        "export GZ_SIM_RESOURCE_PATH=$HOME/gazebo_models && "
+        "source /opt/ros/jazzy/setup.bash && "
+        + cmd;
 
     process->setWorkingDirectory(working_directory);
 
