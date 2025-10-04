@@ -21,7 +21,7 @@ A dynamic, user-friendly interface for managing and monitoring autonomous vehicl
 > **Note**: Make sure you have Qt 5.15.3 (or compatible) and CMake 3.16+ installed.
 
 ```bash
-git clone https://github.com/Mahmood-Sinan/IGVC_UI.git
+git clone https://github.com/Team-Abhiyaan/IGVC_UI.git
 cd IGVC_UI
 mkdir build && cd build
 cmake ..
